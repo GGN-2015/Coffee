@@ -19,7 +19,8 @@ void CodeMgr::clearFunc(std::string funcName) {
 
 void CodeMgr::appendFunc(std::string funcName, std::string codeStr) {
     checkFuncExist(funcName);
-    mFuncCode[funcName] += codeStr + "\n";
+    // mFuncCode[funcName] += codeStr + "\n";
+    getFuncCode(funcName) += codeStr + "\n";
 }
 
 
@@ -376,10 +377,11 @@ void CodeMgr::setGlobalString(std::string funcName, int offset, std::string real
 
 
 void CodeMgr::swapStack(std::string mFunction, int i, int j) {
-    appendFunc(mFunction, "    MOV AX, [BP+" + std::to_string(i * 2) + "]");
-    appendFunc(mFunction, "    MOV BX, [BP+" + std::to_string(j * 2) + "]");
-    appendFunc(mFunction, "    MOV [BP+" + std::to_string(i * 2) + "], BX");
-    appendFunc(mFunction, "    MOV [BP+" + std::to_string(j * 2) + "], AX");
+    appendFunc(mFunction, "    MOV SI, SP");
+    appendFunc(mFunction, "    MOV AX, [SI+" + std::to_string(i * 2) + "]");
+    appendFunc(mFunction, "    MOV BX, [SI+" + std::to_string(j * 2) + "]");
+    appendFunc(mFunction, "    MOV [SI+" + std::to_string(i * 2) + "], BX");
+    appendFunc(mFunction, "    MOV [SI+" + std::to_string(j * 2) + "], AX");
 }
 
 
@@ -433,4 +435,21 @@ void CodeMgr::jumpEndWhile(std::string funcName, int whileId) {
     appendFunc(funcName, "    JMP " + endWhileString);
 }
 
+
+void CodeMgr::PopToVarAt(std::string funcName) {
+    appendFunc(funcName, "    POP AX");
+    appendFunc(funcName, "    POP SI");
+    appendFunc(funcName, "    MOV [SI], AX");
+}
+
+
+std::string& CodeMgr::getFuncCode(std::string funcName) { // speed up search
+    static std::string  lastCallFuncName = "";
+    static std::string* lastCallStringPos = nullptr;
+    if(lastCallStringPos == nullptr || lastCallFuncName != funcName) {
+        lastCallFuncName = funcName;
+        lastCallStringPos = &mFuncCode[funcName];
+    }
+    return *lastCallStringPos;
+}
 

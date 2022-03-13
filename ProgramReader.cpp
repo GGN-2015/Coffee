@@ -545,65 +545,77 @@ void ProgramReader::compileIf(int lineFrom) {
 void ProgramReader::compileAssign(int lineFrom) {
     mLineNow = lineFrom;
     openLine(lineFrom);
-    const Token& tokenIden = match(TOKEN_IDENTIFIER, "IDENTIFIER");
-    if(VarMgr::getInstance().existFunc(tokenIden.raw)) {
-        ErrorReport::getInstance().send(
-            true,
-            "Syntax Error",
-            "You Can not Assign value to function '" + tokenIden.raw + "' use keyword 'CALL' to call it",
-            mLineNow,
-            tokenIden.col
-        );
-    }
-    bool isLocal;
-    int offset; // global var or local var is different
-    int length;
-    if(VarMgr::getInstance().existLocalVar(mFunctionName, tokenIden.raw)) {
-        isLocal = true;
-        offset  = VarMgr::getInstance().getVarOffset(
-            mFunctionName, tokenIden.raw, mLineNow, tokenIden.col
-        );
-        length  = VarMgr::getInstance().getVarLength(
-            mFunctionName, tokenIden.raw
-        );
+    if(getToken().type == TOKEN_VARAT) {
+        match(TOKEN_VARAT, "VARAT");
+        match(TOKEN_OPEN, "(");
+        matchExpression();
+        match(TOKEN_CLOSE, ")");
+        match(TOKEN_ASS, ":=");
+        matchExpression();
+        match(TOKEN_ENDOFLINE, "END_OF_LINE");
+        CodeMgr::getInstance().PopToVarAt(mFunctionName);
+        mLineNow ++;
     }else {
-        if(!VarMgr::getInstance().existGlobalVar(tokenIden.raw)) {
+        const Token& tokenIden = match(TOKEN_IDENTIFIER, "IDENTIFIER");
+        if(VarMgr::getInstance().existFunc(tokenIden.raw)) {
             ErrorReport::getInstance().send(
                 true,
-                "Semantic Error",
-                "Var '" + tokenIden.raw + "' not exist",
-                mLineNow, 
+                "Syntax Error",
+                "You Can not Assign value to function '" + tokenIden.raw + "' use keyword 'CALL' to call it",
+                mLineNow,
                 tokenIden.col
             );
         }
-        isLocal = false; // global var, funcName = ""
-        offset  = VarMgr::getInstance().getVarOffset(
-            "", tokenIden.raw, mLineNow, tokenIden.col
-        );
-        length  = VarMgr::getInstance().getVarLength("", tokenIden.raw);
-    }
-    if(length == 1) {
-        match(TOKEN_ASS, ":=");
-        matchExpression();
-        if(isLocal) {
-            CodeMgr::getInstance().PopToLocalVar(mFunctionName, offset);
+        bool isLocal;
+        int offset; // global var or local var is different
+        int length;
+        if(VarMgr::getInstance().existLocalVar(mFunctionName, tokenIden.raw)) {
+            isLocal = true;
+            offset  = VarMgr::getInstance().getVarOffset(
+                mFunctionName, tokenIden.raw, mLineNow, tokenIden.col
+            );
+            length  = VarMgr::getInstance().getVarLength(
+                mFunctionName, tokenIden.raw
+            );
         }else {
-            CodeMgr::getInstance().PopToGlobalVar(mFunctionName, offset);
+            if(!VarMgr::getInstance().existGlobalVar(tokenIden.raw)) {
+                ErrorReport::getInstance().send(
+                    true,
+                    "Semantic Error",
+                    "Var '" + tokenIden.raw + "' not exist",
+                    mLineNow, 
+                    tokenIden.col
+                );
+            }
+            isLocal = false; // global var, funcName = ""
+            offset  = VarMgr::getInstance().getVarOffset(
+                "", tokenIden.raw, mLineNow, tokenIden.col
+            );
+            length  = VarMgr::getInstance().getVarLength("", tokenIden.raw);
         }
-    }else {
-        if(isLocal) {
-            CodeMgr::getInstance().pushLocalVarOffset(mFunctionName, offset + length - 1);
+        if(length == 1) {
+            match(TOKEN_ASS, ":=");
+            matchExpression();
+            if(isLocal) {
+                CodeMgr::getInstance().PopToLocalVar(mFunctionName, offset);
+            }else {
+                CodeMgr::getInstance().PopToGlobalVar(mFunctionName, offset);
+            }
         }else {
-            CodeMgr::getInstance().pushGlobalVarOffset(mFunctionName, offset);
+            if(isLocal) {
+                CodeMgr::getInstance().pushLocalVarOffset(mFunctionName, offset + length - 1);
+            }else {
+                CodeMgr::getInstance().pushGlobalVarOffset(mFunctionName, offset);
+            }
+            match(TOKEN_INDEXOPEN, "[");
+            matchExpression();
+            match(TOKEN_INDEXCLOSE, "]");
+            match(TOKEN_ASS, ":=");
+            matchExpression();
+            CodeMgr::getInstance().popToArrayVar(mFunctionName);
         }
-        match(TOKEN_INDEXOPEN, "[");
-        matchExpression();
-        match(TOKEN_INDEXCLOSE, "]");
-        match(TOKEN_ASS, ":=");
-        matchExpression();
-        CodeMgr::getInstance().popToArrayVar(mFunctionName);
+        mLineNow ++;
     }
-    mLineNow ++;
 }
 
 
@@ -738,6 +750,9 @@ void ProgramReader::compileLine(int lineFrom) { // total eight form
     if(mTokenTable[lineFrom][0].type == TOKEN_VAR) {
         compileVar(lineFrom);
     }else
+    if(mTokenTable[lineFrom][0].type == TOKEN_ENDOFLINE) {
+        mLineNow = lineFrom + 1;
+    }else
     if(mTokenTable[lineFrom][0].type == TOKEN_RETURN) {
         compileReturn(lineFrom);
     }else
@@ -750,7 +765,9 @@ void ProgramReader::compileLine(int lineFrom) { // total eight form
     if(mTokenTable[lineFrom][0].type == TOKEN_WHILE) {
         compileWhile(lineFrom);
     }else
-    if(mTokenTable[lineFrom][0].type == TOKEN_IDENTIFIER) {
+    if(mTokenTable[lineFrom][0].type == TOKEN_IDENTIFIER || 
+        mTokenTable[lineFrom][0].type == TOKEN_VARAT
+    ) {
         compileAssign(lineFrom);
     }else
     if(mTokenTable[lineFrom][0].type == TOKEN_CALL) {
@@ -814,7 +831,9 @@ get_new_var:
     }else
     if(getToken().type == TOKEN_OFFSET) {
         match(TOKEN_OFFSET, "OFFSET");
+        match(TOKEN_OPEN, "(");
         const Token& tokenIden = match(TOKEN_IDENTIFIER, "IDENTIFIER");
+        match(TOKEN_CLOSE, ")");
         bool isLocal;
         int offset; // global var or local var is different
         int length;

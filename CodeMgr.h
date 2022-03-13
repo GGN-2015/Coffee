@@ -25,6 +25,7 @@ public:
 	void PopToLocalVar(std::string mFunctionName, int offset);
 	void PopToGlobalVar(std::string mFunctionName, int offset);
 	void popToArrayVar(std::string funcName);
+	void PopToVarAt(std::string mFunctionName);
 	void swapStack(std::string mFunction, int i, int j);
     
     void clearStack(std::string nowFuncName, int nowCnt);
@@ -70,6 +71,8 @@ public:
     void outputCode(int stackSegmentSizeWord = 1024);
     
 protected:
+    std::string& getFuncCode(std::string funcName);
+    
     CodeMgr() {}
     
     std::map<std::string, std::string> mFuncCode;
