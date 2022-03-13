@@ -351,6 +351,15 @@ take_on_vars:
         match(TOKEN_INDEXOPEN, "[");
         value = &match(TOKEN_NUMBER, "NUMBER");
         match(TOKEN_INDEXCLOSE, "]");
+        if(VarMgr::getInstance().existFunc(token -> raw)) {
+            ErrorReport::getInstance().send(
+                true,
+                "Syntax Error",
+                "Name '" + token -> raw + "' is already used as a function",
+                lineFrom,
+                token -> col
+            );
+        }
         VarMgr::getInstance().addVar( // get var token[value]
             mFunctionName, 
             token -> raw,
@@ -537,6 +546,15 @@ void ProgramReader::compileAssign(int lineFrom) {
     mLineNow = lineFrom;
     openLine(lineFrom);
     const Token& tokenIden = match(TOKEN_IDENTIFIER, "IDENTIFIER");
+    if(VarMgr::getInstance().existFunc(tokenIden.raw)) {
+        ErrorReport::getInstance().send(
+            true,
+            "Syntax Error",
+            "You Can not Assign value to function '" + tokenIden.raw + "' use keyword 'CALL' to call it",
+            mLineNow,
+            tokenIden.col
+        );
+    }
     bool isLocal;
     int offset; // global var or local var is different
     int length;
