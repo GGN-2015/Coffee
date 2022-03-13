@@ -1,0 +1,46 @@
+VAR col[9] ; 记录哪些行，哪些列有皇后
+VAR ans    ; 记录总方案数
+
+
+FUNC printInt(x)
+    VAR stk[10], stktop
+    stktop := 0
+    IF x = 0 THEN
+        PUTCHAR('0')
+    ELSE
+        WHILE x <> 0 LOOP
+            stk[stktop] := x % 10
+            x := x / 10
+            stktop := stktop + 1
+        ENDWHILE
+        WHILE stktop > 0 LOOP
+            PUTCHAR(stk[stktop - 1] + 48)
+            stktop := stktop - 1
+        ENDWHILE
+    ENDIF
+    PUTCHAR(' ')
+ENDFUNC
+
+
+FUNC dfs(x)
+    IF x >= 9 THEN
+        ans := ans + 1
+    ELSE
+        VAR i
+        i := 1
+        WHILE i <= 8 LOOP
+            IF col[i] = 0 THEN        ; 如果这个位置可以放皇后
+                col[i] := 1
+                CALL dfs(x + 1)
+                col[i] := 0
+            ENDIF
+            i := i + 1
+        ENDWHILE
+    ENDIF
+ENDFUNC
+
+
+FUNC main()                           ; 一些初始化工作
+    CALL dfs(1)
+    CALL printInt(ans)
+ENDFUNC

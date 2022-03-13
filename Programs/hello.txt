@@ -1,0 +1,45 @@
+VAR x, y, z
+
+FUNC isprime(x)                    ; check if integer x is prime
+    IF x <= 1 THEN
+        RETURN 0
+    ELSE
+        VAR i
+        FOR i := 2 TO x-1 DO
+            IF x % i = 0 THEN
+                RETURN 0
+            ENDIF
+        ENDFOR
+        RETURN 1
+    ENDIF
+ENDFUNC
+
+
+FUNC print(x)
+    VAR tmp[10], cnt, i
+    cnt := 0
+    IF x = 0 THEN
+        PUTCHAR(48)
+    ELSE
+        WHILE x <> 0 LOOP
+            VARAT tmp + cnt := x % 10
+            x := x / 10
+            cnt := cnt + 1
+        ENDWHILE
+        FOR i := cnt - 1 TO 0 BY 0-1 DO
+            PUTCHAR(tmp[i] + 48)
+        ENDFOR
+    ENDIF
+ENDFUNC
+
+
+FUNC main()
+    VAR i
+    FOR i := 1 TO 100 DO
+        IF isprime(i) THEN
+            CALL print(i)
+            PUTCHAR(13)
+            PUTCHAR(10)
+        ENDIF
+    ENDFOR
+ENDFUNC
