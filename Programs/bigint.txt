@@ -1,30 +1,22 @@
 FUNC main()
-    VAR arr[100], acnt, i, j, x, y
+    VAR arr[100], acnt, x, y
     x := 2
     y := 100
     arr[0] := 1
     acnt := 1
-    i := 1
-    WHILE i <= y LOOP
-        j := 0
-        WHILE j < acnt LOOP
+    FOR i := 1 TO y DO
+        FOR j := 0 TO acnt - 1 DO
             arr[j] := arr[j] * x
-            j := j + 1
-        ENDWHILE
-        j := 0
-        WHILE j < acnt LOOP
+        ENDFOR
+        FOR j := 0 TO acnt - 1 DO
             arr[j + 1] := arr[j + 1] + arr[j] / 10
             arr[j] := arr[j] % 10
-            j := j + 1
-        ENDWHILE
+        ENDFOR
         IF arr[acnt] <> 0 THEN
             acnt := acnt + 1
         ENDIF
-        i := i + 1
-    ENDWHILE
-    y := acnt - 1
-    WHILE y >= 0 LOOP
-        PUTCHAR('0' + arr[y])
-        y := y - 1
-    ENDWHILE
+    ENDFOR
+    FOR i := 1 TO acnt DO
+        PUTCHAR(arr[acnt - i] + '0')
+    ENDFOR
 ENDFUNC

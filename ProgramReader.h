@@ -38,6 +38,7 @@ public:
 	void compileAssign(int lineFrom);
 	void compileCall(int lineFrom);
 	void compileWhile(int lineFrom);
+	void compileFor(int lineFrom);
 	
 	void compileReturn(int lineFrom);
 	void compilePutchar(int lineFrom);

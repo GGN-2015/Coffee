@@ -301,7 +301,7 @@ const Token& ProgramReader::getToken() {
 
 
 void ProgramReader::nextToken() {
-    // printf("JUMP %s\n", getToken().raw.c_str());
+    //fprintf(stderr, "JUMP %s\n", getToken().raw.c_str());
     if(mTokenId < mTokenTable[mLineId].size()) {
         mTokenId ++;
     }
@@ -660,7 +660,63 @@ void ProgramReader::compileWhile(int lineFrom) {
 }
 
 
+void ProgramReader::compileFor(int lineFrom) {
+    mLineNow = lineFrom;
+    openLine(lineFrom);
+    int whileId = lineFrom;
+    match(TOKEN_FOR, "FOR");
+    const Token& tokenIden = getToken(); nextToken();
+    if(!VarMgr::getInstance().existLocalVar(mFunctionName, tokenIden.raw)) {
+        VarMgr::getInstance().addVar(mFunctionName, tokenIden.raw, 1,
+            mLineNow, tokenIden.col
+        );
+    }
+    int offset = VarMgr::getInstance().getVarOffset( // loop var must be local var
+        mFunctionName, tokenIden.raw, mLineNow, tokenIden.col
+    );
+    int length = VarMgr::getInstance().getVarLength(mFunctionName, tokenIden.raw);
+    if(length != 1) {
+        ErrorReport::getInstance().send(
+            true,
+            "Semantic Error",
+            "Length of Loop Var '" + tokenIden.raw + "' must be 1, but now '" + std::to_string(length) + "'",
+            mLineNow,
+            tokenIden.col
+        );
+    }
+    match(TOKEN_ASS, ":=");
+    matchExpression();
+    CodeMgr::getInstance().PopToLocalVar(mFunctionName, offset);
+    CodeMgr::getInstance().setWhileBegin(mFunctionName, whileId);
+    match(TOKEN_TO, "TO");
+    matchExpression();
+    CodeMgr::getInstance().pushLocalVarValue(mFunctionName, offset);
+    CodeMgr::getInstance().geqStackTop(mFunctionName);
+    CodeMgr::getInstance().checkAndJumpEndWhile(mFunctionName, whileId);
+    match(TOKEN_DO, "DO");
+    match(TOKEN_ENDOFLINE, "END_OF_LINE");
+    int end = mSubPointer[lineFrom][mSubPointer[lineFrom].size() - 1];
+    mLineNow ++;
+    whileStack.push(lineFrom);
+    while(mLineNow < end) {
+        compileLine(mLineNow);
+    }
+    openLine(mLineNow);
+    match(TOKEN_ENDFOR, "ENDFOR");
+    match(TOKEN_ENDOFLINE, "END_OF_LINE");
+    whileStack.pop();
+    CodeMgr::getInstance().pushLocalVarValue(mFunctionName, offset); // set new value for loop var
+    CodeMgr::getInstance().pushConstant(mFunctionName, 1);
+    CodeMgr::getInstance().addStackTop(mFunctionName);
+    CodeMgr::getInstance().PopToLocalVar(mFunctionName, offset); 
+    CodeMgr::getInstance().backToWhileBegin(mFunctionName, whileId);
+    CodeMgr::getInstance().setEndWhile(mFunctionName, lineFrom);
+    mLineNow = end + 1;
+}
+
+
 void ProgramReader::compileLine(int lineFrom) { // total eight form
+    //printf("lineFrom = %d\n", lineFrom);
     if(mTokenTable[lineFrom][0].type == TOKEN_VAR) {
         compileVar(lineFrom);
     }else
@@ -682,7 +738,11 @@ void ProgramReader::compileLine(int lineFrom) { // total eight form
     if(mTokenTable[lineFrom][0].type == TOKEN_CALL) {
         compileCall(lineFrom);
     }else
-    if(mMainPointer[lineFrom] == whileStack.top()) {
+    if(mTokenTable[lineFrom][0].type == TOKEN_FOR) {
+        //fprintf(stderr, "compileFor lineFrom = %d\n", lineFrom);
+        compileFor(lineFrom);
+    }else
+    if(!whileStack.empty() && mMainPointer[lineFrom] == whileStack.top()) {
         int whileId = whileStack.top();
         openLine(mLineNow);
         if(getToken().type == TOKEN_BREAK) {
