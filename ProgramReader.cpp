@@ -721,7 +721,35 @@ void ProgramReader::compileFor(int lineFrom) {
     match(TOKEN_TO, "TO");
     matchExpression();
     CodeMgr::getInstance().pushLocalVarValue(mFunctionName, offset);
-    CodeMgr::getInstance().geqStackTop(mFunctionName);
+    int step = 1, colTmp = 0;
+    if(getToken().type == TOKEN_BY) {
+        int negflag = 0;
+        match(TOKEN_BY, "BY");
+        if(getToken().type == TOKEN_SUB) {
+            match(TOKEN_SUB, "-");
+            negflag = 1;
+        }
+        const Token& tokenNum = match(TOKEN_NUMBER, "NUMBER");
+        colTmp = tokenNum.col;
+        step = atoi(tokenNum.raw.c_str());
+        if(negflag) {
+            step = - step;
+        }
+    }
+    if(step == 0) {
+        ErrorReport::getInstance().send(
+            false,
+            "Syntax Warning",
+            "The Step of FOR is zero (meaningless)",
+            mLineNow,
+            colTmp
+        );
+    }
+    if(step > 0) {
+        CodeMgr::getInstance().geqStackTop(mFunctionName);
+    }else {
+        CodeMgr::getInstance().leqStackTop(mFunctionName);
+    }
     CodeMgr::getInstance().checkAndJumpEndWhile(mFunctionName, whileId);
     match(TOKEN_DO, "DO");
     match(TOKEN_ENDOFLINE, "END_OF_LINE");
@@ -736,7 +764,7 @@ void ProgramReader::compileFor(int lineFrom) {
     match(TOKEN_ENDOFLINE, "END_OF_LINE");
     whileStack.pop();
     CodeMgr::getInstance().pushLocalVarValue(mFunctionName, offset); // set new value for loop var
-    CodeMgr::getInstance().pushConstant(mFunctionName, 1);
+    CodeMgr::getInstance().pushConstant(mFunctionName, step);
     CodeMgr::getInstance().addStackTop(mFunctionName);
     CodeMgr::getInstance().PopToLocalVar(mFunctionName, offset); 
     CodeMgr::getInstance().backToWhileBegin(mFunctionName, whileId);

@@ -16,7 +16,7 @@ FUNC main()
             acnt := acnt + 1
         ENDIF
     ENDFOR
-    FOR i := 1 TO acnt DO
-        PUTCHAR(arr[acnt - i] + '0')
+    FOR i := acnt - 1 TO 0 BY -1 DO
+        PUTCHAR(arr[i] + '0')
     ENDFOR
 ENDFUNC
