@@ -1,0 +1,79 @@
+#ifndef CODEMGR_H
+#define CODEMGR_H
+
+
+#include <string>
+#include <vector>
+#include <map>
+
+
+class CodeMgr
+{
+public:
+    static CodeMgr& getInstance();
+    void clearFunc(std::string funcName);
+    void appendFunc(std::string funcName, std::string codeStr);
+    void checkFuncExist(std::string funcName) const;
+    
+    void pushGetchar(std::string funcName);
+    
+    void pushLocalVarOffset(std::string funcName, int innerOffset);
+    void pushGlobalVarOffset(std::string funcName, int innerOffset);
+    
+    void pushLocalVarValue(std::string mFunctionName, int offset);
+	void pushGlobalVarValue(std::string mFunctionName, int offset);
+	void PopToLocalVar(std::string mFunctionName, int offset);
+	void PopToGlobalVar(std::string mFunctionName, int offset);
+	void popToArrayVar(std::string funcName);
+	void swapStack(std::string mFunction, int i, int j);
+    
+    void clearStack(std::string nowFuncName, int nowCnt);
+    void callFunction(std::string nowFuncName, std::string nextFuncName);
+    void jumpEndIf(std::string mFunctionName, int ifIdNow);
+    void jzEndIf(std::string mFunctionName, int ifIdNow);
+    void setEndIf (std::string mFunctionName, int ifIdNow);
+    void setWhileBegin(std::string mFunctionName, int whileId);
+    void checkAndJumpEndWhile(std::string mFunctionName, int whileId);
+    void backToWhileBegin(std::string mFunctionName, int whileId);
+    void setEndWhile(std::string mFunctionName, int whileId);
+    void jzElse (std::string mFunctionName, int ifIdNow);
+    void setElse  (std::string mFunctionName, int ifIdNow);
+    void setGlobalString(std::string mFunctionName, int offset, std::string realString);
+    void pushConstant(std::string mFunctionName, int value);
+    void pushAX(std::string mFunctionName);
+    void outputStackTop(std::string funcName);
+    
+    void getVarAtStackTop(std::string mFunctionName);
+    void getArrayElementValue(std::string funcName);
+    void testStackTop(std::string mFunctionName);
+    void sendTopToAx(std::string mFunctionName);
+    void jumpReturn(std::string mFunctionName);
+    
+    void addStackTop(std::string funcName);
+    void subStackTop(std::string funcName); 
+    void mulStackTop(std::string funcName); 
+    void divStackTop(std::string funcName); 
+    void modStackTop(std::string funcName); 
+    
+    void lssStackTop(std::string funcName);
+    void leqStackTop(std::string funcName); 
+    void gtrStackTop(std::string funcName); 
+    void geqStackTop(std::string funcName); 
+    void equStackTop(std::string funcName); 
+    void neqStackTop(std::string funcName); 
+    void andStackTop(std::string funcName); 
+    void orStackTop (std::string funcName); 
+    
+    void MOV(std::string funcName, std::string regTo, std::string regFrom);
+    
+    void outputCode(int stackSegmentSizeWord = 1024);
+    
+protected:
+    CodeMgr() {}
+    
+    std::map<std::string, std::string> mFuncCode;
+};
+
+
+#endif
+

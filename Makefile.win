@@ -1,0 +1,49 @@
+# Project: COFFEE
+# Makefile created by Dev-C++ 5.11
+
+CPP      = g++.exe -D__DEBUG__
+CC       = gcc.exe -D__DEBUG__
+WINDRES  = windres.exe
+OBJ      = coffee.o ProgramReader.o ErrorReport.o KeywordMap.o Parser.o Utils.o VarMgr.o CodeMgr.o
+LINKOBJ  = coffee.o ProgramReader.o ErrorReport.o KeywordMap.o Parser.o Utils.o VarMgr.o CodeMgr.o
+LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -g3
+INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
+CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
+BIN      = COFFEE.exe
+CXXFLAGS = $(CXXINCS) -g3 -std=c++11
+CFLAGS   = $(INCS) -g3 -std=c++11
+RM       = rm.exe -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+
+coffee.o: coffee.cpp
+	$(CPP) -c coffee.cpp -o coffee.o $(CXXFLAGS)
+
+ProgramReader.o: ProgramReader.cpp
+	$(CPP) -c ProgramReader.cpp -o ProgramReader.o $(CXXFLAGS)
+
+ErrorReport.o: ErrorReport.cpp
+	$(CPP) -c ErrorReport.cpp -o ErrorReport.o $(CXXFLAGS)
+
+KeywordMap.o: KeywordMap.cpp
+	$(CPP) -c KeywordMap.cpp -o KeywordMap.o $(CXXFLAGS)
+
+Parser.o: Parser.cpp
+	$(CPP) -c Parser.cpp -o Parser.o $(CXXFLAGS)
+
+Utils.o: Utils.cpp
+	$(CPP) -c Utils.cpp -o Utils.o $(CXXFLAGS)
+
+VarMgr.o: VarMgr.cpp
+	$(CPP) -c VarMgr.cpp -o VarMgr.o $(CXXFLAGS)
+
+CodeMgr.o: CodeMgr.cpp
+	$(CPP) -c CodeMgr.cpp -o CodeMgr.o $(CXXFLAGS)
