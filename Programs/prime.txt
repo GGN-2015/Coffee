@@ -26,11 +26,15 @@ FUNC isprime(x)
     i := 2
     WHILE i < x LOOP
         IF x % i = 0 THEN ; x is not prime
-            RETURN 0
+            BREAK
         ENDIF
         i := i + 1
     ENDWHILE
-    RETURN 1              ; x is prime
+    IF i < x THEN
+        RETURN 0
+    ELSE
+        RETURN 1
+    ENDIF
 ENDFUNC
 
 

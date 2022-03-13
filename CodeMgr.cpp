@@ -426,3 +426,11 @@ void CodeMgr::setEndWhile(std::string funcName, int whileId) {
 void CodeMgr::pushAX(std::string funcName) {
     appendFunc(funcName, "    PUSH AX");
 }
+
+
+void CodeMgr::jumpEndWhile(std::string funcName, int whileId) {
+    std::string endWhileString = "ENDWHILE_" + std::to_string(whileId);
+    appendFunc(funcName, "    JMP " + endWhileString);
+}
+
+

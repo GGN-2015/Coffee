@@ -48,6 +48,7 @@ public:
     void testStackTop(std::string mFunctionName);
     void sendTopToAx(std::string mFunctionName);
     void jumpReturn(std::string mFunctionName);
+    void jumpEndWhile(std::string funcName, int whileId);
     
     void addStackTop(std::string funcName);
     void subStackTop(std::string funcName); 

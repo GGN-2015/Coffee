@@ -640,7 +640,7 @@ match_close:
 void ProgramReader::compileWhile(int lineFrom) {
     mLineNow = lineFrom;
     openLine(lineFrom);
-    int whileId = ++ whileCnt;
+    int whileId = lineFrom;
     CodeMgr::getInstance().setWhileBegin(mFunctionName, whileId);
     match(TOKEN_WHILE, "WHILE");
     matchExpression();
@@ -649,15 +649,13 @@ void ProgramReader::compileWhile(int lineFrom) {
     match(TOKEN_ENDOFLINE, "END_OF_LINE");
     int end = mSubPointer[lineFrom][mSubPointer[lineFrom].size() - 1];
     mLineNow ++;
+    whileStack.push(lineFrom);
     while(mLineNow < end) {
-        if(mMainPointer[mLineNow] != lineFrom) {
-            compileLine(mLineNow);
-        }else {
-            // TODO: BREAK, CONTINUE
-        }
+        compileLine(mLineNow);
     }
     CodeMgr::getInstance().backToWhileBegin(mFunctionName, whileId);
     CodeMgr::getInstance().setEndWhile(mFunctionName, whileId);
+    whileStack.pop(); 
     mLineNow = end + 1;
 }
 
@@ -683,6 +681,29 @@ void ProgramReader::compileLine(int lineFrom) { // total eight form
     }else
     if(mTokenTable[lineFrom][0].type == TOKEN_CALL) {
         compileCall(lineFrom);
+    }else
+    if(mMainPointer[lineFrom] == whileStack.top()) {
+        int whileId = whileStack.top();
+        openLine(mLineNow);
+        if(getToken().type == TOKEN_BREAK) {
+            match(TOKEN_BREAK, "BREAK");
+            match(TOKEN_ENDOFLINE, "END_OF_LINE");
+            CodeMgr::getInstance().jumpEndWhile(mFunctionName, whileId);
+        }else
+        if(getToken().type == TOKEN_CONTINUE) {
+            match(TOKEN_CONTINUE, "CONTINUE");
+            match(TOKEN_ENDOFLINE, "END_OF_LINE");
+            CodeMgr::getInstance().backToWhileBegin(mFunctionName, whileId);
+        }else {
+            ErrorReport::getInstance().send(
+                true,
+                "Inner Error",
+                "Slaves of WHILE is not BREAK or CONTINUE but '" + getToken().raw + "'",
+                mLineNow,
+                getToken().col
+            );
+        }
+        mLineNow ++;
     }else
     // ----------------------------------------------------------------------
     // TODO: Add your compile code here

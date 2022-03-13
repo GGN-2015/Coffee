@@ -45,7 +45,7 @@ public:
 	void matchExpression();                // important part of evaluate
 	
 protected:
-    ProgramReader(): mLineId(-1), mTokenId(-1) {ifCnt = whileCnt = stringCnt = 0;}
+    ProgramReader(): mLineId(-1), mTokenId(-1) {ifCnt = stringCnt = 0;}
     void parseNewline();                   // parse the last line and append to mTokenTable
     
     std::string mFileName;
@@ -59,10 +59,11 @@ protected:
     int mTokenId;
     int mLineNow;
     int ifCnt;                             // count of if in the program
-    int whileCnt;
     
     std::string mFunctionName;             // the function which is being compiled
     int stringCnt;
+    
+    std::stack<int> whileStack;
     
     void openLine(int lineId);             // open a line and begin to read tokens 
 	const Token& getToken();               // get a token
