@@ -22,6 +22,25 @@ FUNC printInt(x)
 ENDFUNC
 
 
+FUNC setQueen(x, i)
+    col[i]         := 1
+    add[x + i - 1] := 1
+    sub[x - i + 8] := 1
+ENDFUNC
+
+
+FUNC resetQueen(x, i)
+    col[i]         := 0
+    add[x + i - 1] := 0
+    sub[x - i + 8] := 0
+ENDFUNC
+
+
+FUNC checkPos(x, i)
+    RETURN NOT(col[i]) AND NOT(add[x + i - 1]) AND NOT(sub[x - i + 8])
+ENDFUNC
+
+
 FUNC dfs(x)
     IF x >= 9 THEN
         ans := ans + 1
@@ -29,15 +48,10 @@ FUNC dfs(x)
         VAR i, flag
         i := 1
         WHILE i <= 8 LOOP
-            flag := col[i] OR add[x + i - 1] OR sub[x - i + 8]
-            IF flag = 0 THEN
-                col[i]         := 1
-                add[x + i - 1] := 1
-                sub[x - i + 8] := 1
+            IF checkPos(x, i) THEN
+                CALL setQueen(x, i)
                 CALL dfs(x + 1)
-                col[i]         := 0
-                add[x + i - 1] := 0
-                sub[x - i + 8] := 0
+                CALL resetQueen(x, i)
             ENDIF
             i := i + 1
         ENDWHILE

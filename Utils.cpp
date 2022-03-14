@@ -134,7 +134,41 @@ int Utils::priority(int type) {
 }
 
 
-std::string Utils::getReadlString(std::string raw) {    
-    return raw.substr(1, raw.length() - 2);
+char Utils::getTransChar(char ch, int& flag) {
+    flag = 0;
+    switch(ch) {
+        case '0': return 0;
+        case 'a': return 7;
+        case 'b': return 8;
+        case 'f': return 12;
+        case 'n': return 10;
+        case 'r': return 13;
+        case 't': return 9;
+        case 'v': return 11;
+        case '\\': return '\\';
+        case '\'': return '\'';
+        case '\"': return '\"';
+        default:
+            flag = 1;
+    }
+    return 0;
+}
+
+
+std::string Utils::getRealString(std::string raw) {
+    std::string realStr = "";
+    for(int i = 1; i < raw.length() - 1; i ++) {
+        if(raw[i] != '\\') {
+            realStr += raw[i]; // this is just a normal string
+        }else {
+            i ++;
+            int flag = 0;
+            char ch = getTransChar(raw[i], flag);
+            if(!flag) {
+                realStr += ch;
+            }
+        }
+    }
+    return realStr;
 }
 

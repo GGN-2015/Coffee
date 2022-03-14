@@ -90,9 +90,10 @@ std::string Parser::getString(int lineId) {
             );
         }
         char ch = getChar();
+        char lastchar = ans[ans.size() - 1];
         ans += ch;
         nextChar();
-        if(ch == ans[0]) {
+        if(ch == ans[0] && lastchar != '\\') {
             break;
         }
     }

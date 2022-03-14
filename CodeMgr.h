@@ -7,6 +7,9 @@
 #include <map>
 
 
+#define MEMORY_WORD_MAX (32 * 1024)
+
+
 class CodeMgr
 {
 public:
@@ -40,11 +43,13 @@ public:
     void jzElse (std::string mFunctionName, int ifIdNow);
     void setElse  (std::string mFunctionName, int ifIdNow);
     void setGlobalString(std::string mFunctionName, int offset, std::string realString);
+    void setGlobalVar(std::string varName, int length);
     void pushConstant(std::string mFunctionName, int value);
     void pushAX(std::string mFunctionName);
     void outputStackTop(std::string funcName);
     
     void getVarAtStackTop(std::string mFunctionName);
+    void getNotStackTop(std::string mFunctionName);
     void getArrayElementValue(std::string funcName);
     void testStackTop(std::string mFunctionName);
     void sendTopToAx(std::string mFunctionName);
@@ -73,9 +78,12 @@ public:
 protected:
     std::string& getFuncCode(std::string funcName);
     
-    CodeMgr() {}
+    CodeMgr() {stackSegmentLengthWord = 0;}
     
     std::map<std::string, std::string> mFuncCode;
+    
+    std::string stackSegment;
+    int stackSegmentLengthWord;
 };
 
 

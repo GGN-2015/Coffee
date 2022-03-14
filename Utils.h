@@ -16,7 +16,8 @@ public:
     static bool isCompare(char c);
     static bool isSingleOpe(char c); // the operator with only a single char
     static int  getSingleOpeId(char c);
-    static std::string getReadlString(std::string raw);
+    static std::string getRealString(std::string raw);
+    static char getTransChar(char ch, int& flag);
     
     static bool isOpenType(int type);
     static bool isCloseType(int type);

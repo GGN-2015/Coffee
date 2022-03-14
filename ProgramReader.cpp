@@ -216,7 +216,7 @@ void ProgramReader::parseNewline() {
         char ch  = ps.getChar();
         int  col = ps.getColumn();
         if(ch == 0 || ch == ';') {
-            tokenListTmp.push_back(Token(TOKEN_ENDOFLINE, col, "<EOL>"));
+            tokenListTmp.push_back(Token(TOKEN_ENDOFLINE, col, "<END_OF_LINE>"));
             break;                                  // every line has a token EOL on it
         }
         if(Utils::isLetter(ch)) {                   // read in identifier or keyword
@@ -367,6 +367,9 @@ take_on_vars:
             lineFrom,
             token -> col
         );
+        if(mFunctionName == "") { // register a global var in stack segment
+            CodeMgr::getInstance().setGlobalVar(token -> raw, atoi(value -> raw.c_str()));
+        }
     }else {
         VarMgr::getInstance().addVar( // get var token (length = 1)
             mFunctionName, 
@@ -857,6 +860,14 @@ get_new_var:
         CodeMgr::getInstance().getVarAtStackTop(mFunctionName);
         varCnt ++;
     }else
+    if(getToken().type == TOKEN_NOT) {
+        match(TOKEN_NOT, "NOT");
+        match(TOKEN_OPEN, "(");
+        matchExpression();
+        match(TOKEN_CLOSE, ")");
+        CodeMgr::getInstance().getNotStackTop(mFunctionName);
+        varCnt ++;
+    }else
     if(getToken().type == TOKEN_OFFSET) {
         match(TOKEN_OFFSET, "OFFSET");
         match(TOKEN_OPEN, "(");
@@ -898,12 +909,12 @@ get_new_var:
     }else
     if(getToken().type == TOKEN_STRING) {
         const Token& tokenStr = getToken(); nextToken();
-        if(tokenStr.raw.length() == 3) {
-            CodeMgr::getInstance().pushConstant(mFunctionName, (unsigned)tokenStr.raw[1]);
+        std::string realString = Utils::getRealString(tokenStr.raw);
+        if(realString.length() == 1) {
+            CodeMgr::getInstance().pushConstant(mFunctionName, (unsigned)realString[0]);
             varCnt ++;
         }else {
             int strId = ++ stringCnt;
-            std::string realString = Utils::getReadlString(tokenStr.raw);
             std::string tmpName = "#STR_" + std::to_string(strId);
             VarMgr::getInstance().addVar("", tmpName, realString.length() + 1, 
                 mLineNow, tokenStr.col

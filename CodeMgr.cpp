@@ -174,8 +174,24 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
             "function 'main' can not have arguments"
         );
     }
+    if(stackSegmentSizeWord - stackSegmentLengthWord < 0) {
+        ErrorReport::getInstance().send(
+            true,
+            "Semantic Error",
+            "You have too many global var so that memory = " + 
+                std::to_string(stackSegmentSizeWord) + " WORDS is not Enough"
+        );
+    }
+    if(stackSegmentSizeWord >= MEMORY_WORD_MAX) {
+        ErrorReport::getInstance().send(
+            true,
+            "Semantic Error",
+            "stack segment size must be under " + std::to_string(MEMORY_WORD_MAX) + " words"
+        );
+    }
     printf("STACKSG SEGMENT STACK\n");
-    printf("    DW %d DUP(0)\n", stackSegmentSizeWord);
+    printf("%s", stackSegment.c_str());
+    printf("    DW %d DUP(0)\n", stackSegmentSizeWord - stackSegmentLengthWord);
     printf("STACKSG ENDS\n\n");
     printf("CODESG SEGMENT\n");
     printf("    ASSUME CS:CODESG, DS:STACKSG, SS:STACKSG\n\n");
@@ -293,18 +309,41 @@ void CodeMgr::neqStackTop(std::string funcName) {
 
 
 void CodeMgr::andStackTop(std::string funcName) {
+    int jumpId[2];
+    std::string jumpStr[2];
+    for(int i = 0; i < 2; i ++) {
+        jumpId [i] = ++ jumpCnt;
+        jumpStr[i] = "JUMP_" + std::to_string(jumpId[i]);
+    }
     appendFunc(funcName, "    POP BX");
+    appendFunc(funcName, "    AND BX, BX");
+    appendFunc(funcName, "    JZ " + jumpStr[0]);
+    appendFunc(funcName, "    MOV BX, 1");
+    appendFunc(funcName, jumpStr[0] + ":");
+    
     appendFunc(funcName, "    POP AX");
+    appendFunc(funcName, "    AND AX, AX");
+    appendFunc(funcName, "    JZ " + jumpStr[1]);
+    appendFunc(funcName, "    MOV AX, 1");
+    appendFunc(funcName, jumpStr[1] + ":");
+    
     appendFunc(funcName, "    AND AX, BX");
     appendFunc(funcName, "    PUSH AX");
 }
 
 
 void CodeMgr::orStackTop(std::string funcName) {
+    int jumpId = ++ jumpCnt;
+    std::string jumpStr = "JUMP_" + std::to_string(jumpId);
     appendFunc(funcName, "    POP BX");
     appendFunc(funcName, "    POP AX");
     appendFunc(funcName, "    OR AX, BX");
-    appendFunc(funcName, "    PUSH AX");
+    appendFunc(funcName, "    MOV CX, 0");
+    appendFunc(funcName, "    AND AX, AX");
+    appendFunc(funcName, "    JZ " + jumpStr);
+    appendFunc(funcName, "    MOV CX, 1");
+    appendFunc(funcName, jumpStr + ":");
+    appendFunc(funcName, "    PUSH CX");
 }
 
 
@@ -368,11 +407,15 @@ void CodeMgr::popToArrayVar(std::string funcName) {
 
 
 void CodeMgr::setGlobalString(std::string funcName, int offset, std::string realString) {
-    for(int i = 0; i <= realString.length(); i ++) {
-        appendFunc(funcName, "    MOV AX, " + std::to_string((   unsigned)realString[i]));
-        appendFunc(funcName, "    MOV SI, " + std::to_string((offset + i) * 2));
-        appendFunc(funcName, "    MOV [SI], AX"); // offset
+    stackSegment += "    DW ";
+    for(int i = 0; i < realString.length(); i ++) {
+        stackSegment += std::to_string(realString[i]) + ", ";
+        // appendFunc(funcName, "    MOV AX, " + std::to_string((   unsigned)realString[i]));
+        // appendFunc(funcName, "    MOV SI, " + std::to_string((offset + i) * 2));
+        // appendFunc(funcName, "    MOV [SI], AX"); // offset
     }
+    stackSegment += "0\n";
+    stackSegmentLengthWord += realString.length() + 1;
 }
 
 
@@ -453,3 +496,22 @@ std::string& CodeMgr::getFuncCode(std::string funcName) { // speed up search
     return *lastCallStringPos;
 }
 
+
+void CodeMgr::getNotStackTop(std::string funcName) {
+    int jumpId = ++ jumpCnt;
+    std::string jumpStr = "JUMP_" + std::to_string(jumpId);
+    appendFunc(funcName, "    POP AX");
+    appendFunc(funcName, "    MOV CX, 0");
+    appendFunc(funcName, "    AND AX, AX");
+    appendFunc(funcName, "    JNZ " + jumpStr);
+    appendFunc(funcName, "    MOV CX, 1");
+    appendFunc(funcName, jumpStr + ":");
+    
+    appendFunc(funcName, "    PUSH CX");
+}
+
+
+void CodeMgr::setGlobalVar(std::string varName, int length) {
+    stackSegment += "    GLOBAL_" + varName + " DW " + std::to_string(length) + " DUP(0)\n";
+    stackSegmentLengthWord += length;
+}
