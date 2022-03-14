@@ -1,0 +1,97 @@
+VAR compact_buffer[129]
+
+
+FUNC print(pArr)
+    VAR i
+    i := 0
+    WHILE VARAT(pArr + 2 * i) <> 0 LOOP
+        PUTCHAR(VARAT(pArr + 2 * i))
+        i := i + 1
+    ENDWHILE
+ENDFUNC
+
+
+FUNC printInt(x)
+    VAR stk[10], stktop
+    stktop := 0
+    IF x = 0 THEN
+        PUTCHAR('0')
+    ELSE
+        WHILE x <> 0 LOOP
+            stk[stktop] := x % 10
+            x := x / 10
+            stktop := stktop + 1
+        ENDWHILE
+        WHILE stktop > 0 LOOP
+            PUTCHAR(stk[stktop - 1] + 48)
+            stktop := stktop - 1
+        ENDWHILE
+    ENDIF
+    PUTCHAR(' ')
+ENDFUNC
+
+
+FUNC compact(pArr)          ; use this function to load string into compact mode
+    ASM("MOV SI, [BP-2]")   ; especially for inner ASM
+    ASM("LEA DI, GLOBAL_compact_buffer")
+    ASM("INNER_ASM_FLAG_1:")
+    ASM("MOV AX, [SI]")
+    ASM("MOV BYTE PTR [DI], AL")
+    ASM("ADD SI, 2")
+    ASM("INC DI")
+    ASM("AND AX, AX")
+    ASM("JNZ INNER_ASM_FLAG_1")
+ENDFUNC
+
+
+FUNC readFile(pFileName)
+    CALL compact(pFileName)              ; get compact filename
+    ASM("MOV AH, 3DH")                   ; int = open file
+    ASM("MOV AL, 0")                     ;   mode: read
+    ASM("LEA DX, GLOBAL_compact_buffer") ;   set filename
+    ASM("INT 21H")                       ; int
+    ASM("JC READ_FILE_ERR")              ; if no error
+    ASM("JMP ENDFUNC_readFile")          ;   return AX
+    ASM("READ_FILE_ERR:")                ; else
+    ASM("MOV AX, -1")                    ;   return -1
+ENDFUNC
+
+
+FUNC closeFile(fp)                       ;
+    ASM("MOV AH, 3EH")                   ; int = close file
+    ASM("MOV BX, [BP-2]")                ;   handle = fp
+    ASM("INT 21H")                       ; int then RETURN AX
+ENDFUNC
+
+
+FUNC fgetc(fpin)
+    VAR chTmp
+    chTmp := 0
+    ASM("MOV AH, 3FH")                   ; int = read file
+    ASM("MOV BX, [BP-2]")                ;   FILE* = fpin
+    ASM("LEA DX, [BP-4]")                ;   store to chTmp
+    ASM("MOV CX, 1")                     ;   readCnt = 1
+    ASM("INT 21H")                       ; int
+    ASM("AND AX, AX")                    ; AX: is the realtime readCnt
+    ASM("JNZ FGETC_FILE_NOT_END")        ; if AX = 0
+    ASM("MOV AX, -1")                    ;   return = EOF
+    ASM("JMP ENDFUNC_fgetc")             ;   return
+    ASM("FGETC_FILE_NOT_END:")
+    RETURN chTmp
+ENDFUNC
+
+
+FUNC main()                              ; output FILE.TXT to screen
+    VAR fpin, ch
+    fpin := readFile("FILE.TXT\0$")      ; just open a file, save handle to fpin
+    IF 1 + fpin = 0 THEN                 ; fpin = -1 means fail to open file
+        CALL print("FAIL TO OPENFILE\n")
+        RETURN
+    ENDIF
+    ch := fgetc(fpin)
+    WHILE ch <> -1 LOOP
+        PUTCHAR(ch)
+        ch := fgetc(fpin)
+    ENDWHILE
+    CALL closeFile(fpin)
+ENDFUNC

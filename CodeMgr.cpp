@@ -1,5 +1,6 @@
 #include "CodeMgr.h"
 #include "ErrorReport.h"
+#include "Utils.h"
 #include "VarMgr.h"
 
 
@@ -19,8 +20,13 @@ void CodeMgr::clearFunc(std::string funcName) {
 
 void CodeMgr::appendFunc(std::string funcName, std::string codeStr) {
     checkFuncExist(funcName);
-    // mFuncCode[funcName] += codeStr + "\n";
     getFuncCode(funcName) += codeStr + "\n";
+}
+
+
+void CodeMgr::appendFuncAsm(std::string funcName, std::string codeStr) {
+    checkFuncExist(funcName);
+    getFuncCode(funcName) += "    " + Utils::fillStrTo(codeStr, 30) + "; code from inner asm\n";
 }
 
 

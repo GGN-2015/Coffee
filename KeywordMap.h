@@ -72,6 +72,9 @@
 #define TOKEN_NOT         (46)
 
 
+#define TOKEN_ASM         (47) // ASM "MOV AX, BX"
+
+
 class KeywordMap
 {
 public:
@@ -106,6 +109,7 @@ protected:
         mKeywordId["AND"     ] = TOKEN_AND     ;
         mKeywordId["OR"      ] = TOKEN_OR      ;
         mKeywordId["NOT"     ] = TOKEN_NOT     ;
+        mKeywordId["ASM"     ] = TOKEN_ASM     ;
     }
     
     std::map<std::string, int> mKeywordId;

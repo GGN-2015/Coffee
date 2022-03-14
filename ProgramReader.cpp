@@ -345,6 +345,7 @@ void ProgramReader::compileVar(int lineFrom) {
     match(TOKEN_VAR, "VAR"); // default jump this token
     const Token* token = nullptr;
     const Token* value = nullptr;
+    int length = 1;
 take_on_vars:
     token = &match(TOKEN_IDENTIFIER, "IDENTIFIER");
     if(getToken().type == TOKEN_INDEXOPEN) {
@@ -363,21 +364,21 @@ take_on_vars:
         VarMgr::getInstance().addVar( // get var token[value]
             mFunctionName, 
             token -> raw,
-            atoi(value -> raw.c_str()),
+            length = atoi(value -> raw.c_str()),
             lineFrom,
             token -> col
         );
-        if(mFunctionName == "") { // register a global var in stack segment
-            CodeMgr::getInstance().setGlobalVar(token -> raw, atoi(value -> raw.c_str()));
-        }
     }else {
         VarMgr::getInstance().addVar( // get var token (length = 1)
             mFunctionName, 
             token -> raw,
-            1,
+            length = 1,
             lineFrom,
             token -> col
         );
+    }
+    if(mFunctionName == "") { // register a global var in stack segment
+        CodeMgr::getInstance().setGlobalVar(token -> raw, length);
     }
     if(getToken().type == TOKEN_COMMA) {
         match(TOKEN_COMMA, ",");
@@ -776,8 +777,24 @@ void ProgramReader::compileFor(int lineFrom) {
 }
 
 
+void ProgramReader::compileAsm(int lineFrom) {
+    mLineNow = lineFrom;
+    openLine(lineFrom);
+    match(TOKEN_ASM, "ASM");
+    match(TOKEN_OPEN, "(");
+    const Token& tokenStr = match(TOKEN_STRING, "STRING");
+    match(TOKEN_CLOSE, ")");
+    match(TOKEN_ENDOFLINE, "END_OF_LINE");
+    CodeMgr::getInstance().appendFuncAsm(mFunctionName, Utils::getRealString(tokenStr.raw));
+    mLineNow = lineFrom + 1;
+}
+
+
 void ProgramReader::compileLine(int lineFrom) { // total eight form
     //printf("lineFrom = %d\n", lineFrom);
+    if(mTokenTable[lineFrom][0].type == TOKEN_ASM) {
+        compileAsm(lineFrom);
+    }else
     if(mTokenTable[lineFrom][0].type == TOKEN_VAR) {
         compileVar(lineFrom);
     }else

@@ -16,6 +16,7 @@ public:
     static CodeMgr& getInstance();
     void clearFunc(std::string funcName);
     void appendFunc(std::string funcName, std::string codeStr);
+    void appendFuncAsm(std::string funcName, std::string codeStr);
     void checkFuncExist(std::string funcName) const;
     
     void pushGetchar(std::string funcName);

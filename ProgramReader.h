@@ -33,6 +33,7 @@ public:
 	void compile();                        // compile the whole file 
 	void compileFunction(int lineFrom);
 	void compileVar(int lineFrom);         // check mFunctionName = "" means global var
+	void compileAsm(int lineFrom);
 	void compileLine(int lineFrom);
 	void compileIf(int lineFrom);
 	void compileAssign(int lineFrom);

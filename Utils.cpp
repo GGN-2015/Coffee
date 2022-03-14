@@ -172,3 +172,10 @@ std::string Utils::getRealString(std::string raw) {
     return realStr;
 }
 
+
+std::string Utils::fillStrTo(std::string strNow, int length) {
+    while(strNow.length() < length) {
+        strNow += " ";
+    }
+    return strNow;
+}

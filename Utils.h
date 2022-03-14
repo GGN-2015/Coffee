@@ -18,6 +18,7 @@ public:
     static int  getSingleOpeId(char c);
     static std::string getRealString(std::string raw);
     static char getTransChar(char ch, int& flag);
+    static std::string fillStrTo(std::string strNow, int length);
     
     static bool isOpenType(int type);
     static bool isCloseType(int type);
