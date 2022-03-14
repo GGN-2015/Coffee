@@ -83,8 +83,8 @@ ENDFUNC
 
 FUNC main()                              ; output FILE.TXT to screen
     VAR fpin, ch
-    fpin := readFile("FILE.TXT\0$")      ; just open a file, save handle to fpin
-    IF 1 + fpin = 0 THEN                 ; fpin = -1 means fail to open file
+    fpin := readFile("FILE.TXT")      ; just open a file, save handle to fpin
+    IF fpin = -1 THEN                 ; fpin = -1 means fail to open file
         CALL print("FAIL TO OPENFILE\n")
         RETURN
     ENDIF

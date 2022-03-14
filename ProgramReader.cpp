@@ -862,6 +862,91 @@ void ProgramReader::compileLine(int lineFrom) { // total eight form
 }
 
 
+void ProgramReader::matchIdentifierExpression(int& varCnt) {
+    if(VarMgr::getInstance().existFunc(getToken().raw)) { // this is a function
+        const Token& tokenFunc = getToken(); nextToken();
+        int arguCnt = VarMgr::getInstance().getFuncArguCnt(tokenFunc.raw);
+        int nowCnt = 0;
+        match(TOKEN_OPEN, "(");
+        if(getToken().type == TOKEN_CLOSE) {
+            goto match_close_here;
+        }
+get_one_argu_here:
+        matchExpression();
+        nowCnt ++;
+        if(getToken().type == TOKEN_COMMA) {
+            nextToken();
+            goto get_one_argu_here;
+        }
+match_close_here:
+        const Token& tokenClose = match(TOKEN_CLOSE, ")");
+        if(arguCnt != nowCnt) {
+            ErrorReport::getInstance().send(
+                true,
+                "Syntax Error",
+                "function '' need " + std::to_string(arguCnt) + " paras but " + std::to_string(nowCnt) + " given",
+                mLineNow,
+                tokenClose.col
+            );
+        }
+        for(int i = 0, j = arguCnt - 1; i < j; i ++, j --) {
+            CodeMgr::getInstance().swapStack(mFunctionName, i, j);
+        }
+        CodeMgr::getInstance().callFunction(mFunctionName, tokenFunc.raw);
+        CodeMgr::getInstance().clearStack(mFunctionName, nowCnt);
+        CodeMgr::getInstance().pushAX(mFunctionName);
+        varCnt ++;
+    }else {
+        const Token& tokenIden = getToken(); nextToken();
+        bool isLocal;
+        int  offset ; // global var or local var is different
+        int  length ;
+        if(VarMgr::getInstance().existLocalVar(mFunctionName, tokenIden.raw)) {
+            isLocal = true;
+            offset  = VarMgr::getInstance().getVarOffset(
+                mFunctionName, tokenIden.raw, mLineNow, tokenIden.col
+            );
+            length  = VarMgr::getInstance().getVarLength(
+                mFunctionName, tokenIden.raw
+            );
+        }else {
+            if(!VarMgr::getInstance().existGlobalVar(tokenIden.raw)) {
+                ErrorReport::getInstance().send(
+                    true,
+                    "Semantic Error",
+                    "Var '" + tokenIden.raw + "' not exist",
+                    mLineNow, 
+                    tokenIden.col
+                );
+            }
+            isLocal = false; // global var, funcName = ""
+            offset  = VarMgr::getInstance().getVarOffset(
+                "", tokenIden.raw, mLineNow, tokenIden.col
+            );
+            length  = VarMgr::getInstance().getVarLength("", tokenIden.raw);
+        }
+        if(length <= 1) {
+            if(isLocal) {
+                CodeMgr::getInstance().pushLocalVarValue(mFunctionName, offset);
+            }else {
+                CodeMgr::getInstance().pushGlobalVarValue(mFunctionName, offset);
+            }
+        }else {
+            if(isLocal) {
+                CodeMgr::getInstance().pushLocalVarOffset(mFunctionName, offset + length - 1);
+            }else {
+                CodeMgr::getInstance().pushGlobalVarOffset(mFunctionName, offset);
+            }
+            match(TOKEN_INDEXOPEN, "[");
+            matchExpression();
+            match(TOKEN_INDEXCLOSE, "]");
+            CodeMgr::getInstance().getArrayElementValue(mFunctionName);
+        }
+        varCnt ++;
+    }
+}
+
+
 void ProgramReader::matchExpression() {
     std::stack <int> opeStack;             // operator stack
     // now you must have opened a line by openLine
@@ -883,6 +968,27 @@ get_new_var:
         matchExpression();
         match(TOKEN_CLOSE, ")");
         CodeMgr::getInstance().getNotStackTop(mFunctionName);
+        varCnt ++;
+    }else
+    if(getToken().type == TOKEN_SUB) { // -1, -x, -arr[3], f()
+        match(TOKEN_SUB, "-");
+        if(getToken().type == TOKEN_NUMBER) {
+            const Token& tokenNum = match(TOKEN_NUMBER, "NUMBER");
+            CodeMgr::getInstance().pushConstant(mFunctionName, -atoi(tokenNum.raw.c_str()));
+        }else
+        if(getToken().type == TOKEN_IDENTIFIER) {
+            matchIdentifierExpression(varCnt);
+            CodeMgr::getInstance().negStackTop(mFunctionName);
+        }else
+        {
+            ErrorReport::getInstance().send(
+                true,
+                "Syntax Error",
+                "'-' can not be followed by '" + getToken().raw + "'",
+                mLineNow,
+                getToken().col
+            );
+        }
         varCnt ++;
     }else
     if(getToken().type == TOKEN_OFFSET) {
@@ -963,87 +1069,7 @@ get_new_var:
         varCnt ++;
     }else 
     if(getToken().type == TOKEN_IDENTIFIER) {   // function local/global, var/array
-        if(VarMgr::getInstance().existFunc(getToken().raw)) { // this is a function
-            const Token& tokenFunc = getToken(); nextToken();
-            int arguCnt = VarMgr::getInstance().getFuncArguCnt(tokenFunc.raw);
-            int nowCnt = 0;
-            match(TOKEN_OPEN, "(");
-            if(getToken().type == TOKEN_CLOSE) {
-                goto match_close_here;
-            }
-get_one_argu_here:
-            matchExpression();
-            nowCnt ++;
-            if(getToken().type == TOKEN_COMMA) {
-                nextToken();
-                goto get_one_argu_here;
-            }
-match_close_here:
-            const Token& tokenClose = match(TOKEN_CLOSE, ")");
-            if(arguCnt != nowCnt) {
-                ErrorReport::getInstance().send(
-                    true,
-                    "Syntax Error",
-                    "function '' need " + std::to_string(arguCnt) + " paras but " + std::to_string(nowCnt) + " given",
-                    mLineNow,
-                    tokenClose.col
-                );
-            }
-            for(int i = 0, j = arguCnt - 1; i < j; i ++, j --) {
-                CodeMgr::getInstance().swapStack(mFunctionName, i, j);
-            }
-            CodeMgr::getInstance().callFunction(mFunctionName, tokenFunc.raw);
-            CodeMgr::getInstance().clearStack(mFunctionName, nowCnt);
-            CodeMgr::getInstance().pushAX(mFunctionName);
-            varCnt ++;
-        }else {
-            const Token& tokenIden = getToken(); nextToken();
-            bool isLocal;
-            int  offset ; // global var or local var is different
-            int  length ;
-            if(VarMgr::getInstance().existLocalVar(mFunctionName, tokenIden.raw)) {
-                isLocal = true;
-                offset  = VarMgr::getInstance().getVarOffset(
-                    mFunctionName, tokenIden.raw, mLineNow, tokenIden.col
-                );
-                length  = VarMgr::getInstance().getVarLength(
-                    mFunctionName, tokenIden.raw
-                );
-            }else {
-                if(!VarMgr::getInstance().existGlobalVar(tokenIden.raw)) {
-                    ErrorReport::getInstance().send(
-                        true,
-                        "Semantic Error",
-                        "Var '" + tokenIden.raw + "' not exist",
-                        mLineNow, 
-                        tokenIden.col
-                    );
-                }
-                isLocal = false; // global var, funcName = ""
-                offset  = VarMgr::getInstance().getVarOffset(
-                    "", tokenIden.raw, mLineNow, tokenIden.col
-                );
-                length  = VarMgr::getInstance().getVarLength("", tokenIden.raw);
-            }
-            if(length <= 1) {
-                if(isLocal) {
-                    CodeMgr::getInstance().pushLocalVarValue(mFunctionName, offset);
-                }else {
-                    CodeMgr::getInstance().pushGlobalVarValue(mFunctionName, offset);
-                }
-            }else {
-                if(isLocal) {
-                    CodeMgr::getInstance().pushLocalVarOffset(mFunctionName, offset + length - 1);
-                }else {
-                    CodeMgr::getInstance().pushGlobalVarOffset(mFunctionName, offset);
-                }
-                match(TOKEN_INDEXOPEN, "[");
-                matchExpression();
-                match(TOKEN_INDEXCLOSE, "]");
-                CodeMgr::getInstance().getArrayElementValue(mFunctionName);
-            }
-            varCnt ++;
-        }
+        matchIdentifierExpression(varCnt);
     }else {
         ErrorReport::getInstance().send(
             true,

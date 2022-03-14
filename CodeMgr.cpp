@@ -512,7 +512,6 @@ void CodeMgr::getNotStackTop(std::string funcName) {
     appendFunc(funcName, "    JNZ " + jumpStr);
     appendFunc(funcName, "    MOV CX, 1");
     appendFunc(funcName, jumpStr + ":");
-    
     appendFunc(funcName, "    PUSH CX");
 }
 
@@ -520,4 +519,11 @@ void CodeMgr::getNotStackTop(std::string funcName) {
 void CodeMgr::setGlobalVar(std::string varName, int length) {
     stackSegment += "    GLOBAL_" + varName + " DW " + std::to_string(length) + " DUP(0)\n";
     stackSegmentLengthWord += length;
+}
+
+
+void CodeMgr::negStackTop(std::string funcName) {
+    appendFunc(funcName, "    POP AX");
+    appendFunc(funcName, "    NEG AX");
+    appendFunc(funcName, "    PUSH AX");
 }

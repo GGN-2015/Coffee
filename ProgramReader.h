@@ -44,9 +44,10 @@ public:
 	void compileReturn(int lineFrom);
 	void compilePutchar(int lineFrom);
 	
-	void matchExpression();                // important part of evaluate
-	
 protected:
+    void matchExpression();                // important part of evaluate
+	void matchIdentifierExpression(int&);
+    
     ProgramReader(): mLineId(-1), mTokenId(-1) {ifCnt = stringCnt = 0;}
     void parseNewline();                   // parse the last line and append to mTokenTable
     

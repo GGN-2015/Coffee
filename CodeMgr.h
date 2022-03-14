@@ -72,6 +72,8 @@ public:
     void andStackTop(std::string funcName); 
     void orStackTop (std::string funcName); 
     
+    void negStackTop(std::string funcName);
+    
     void MOV(std::string funcName, std::string regTo, std::string regFrom);
     
     void outputCode(int stackSegmentSizeWord = 1024);
