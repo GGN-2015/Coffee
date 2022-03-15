@@ -66,23 +66,22 @@ FUNC geti()
 ENDFUNC
 
 
-FUNC printSignedInt(x)
-    VAR stk[10], stktop
-    stktop := 0
+FUNC printInt(x)
+    IF x < 0 THEN
+        PUTCHAR('-')
+        x := - x
+    ENDIF
+    VAR stk[10], stktop := 0
     IF x = 0 THEN
         PUTCHAR('0')
     ELSE
-        IF x < 0 THEN
-            PUTCHAR('-')
-            x := 0 - x
-        ENDIF
         WHILE x <> 0 LOOP
             stk[stktop] := x % 10
             x := x / 10
             stktop := stktop + 1
         ENDWHILE
         WHILE stktop > 0 LOOP
-            PUTCHAR(stk[stktop - 1] + 48)
+            PUTCHAR(stk[stktop - 1] + '0')
             stktop := stktop - 1
         ENDWHILE
     ENDIF
@@ -90,37 +89,41 @@ FUNC printSignedInt(x)
 ENDFUNC
 
 
-VAR gcd
-
-
 FUNC exgcd(x, y, pa, pb)
+    CALL print(" a = ")
+    CALL printInt(x)
+    PUTCHAR(',')
+    CALL print(" b = ")
+    CALL printInt(y)
+    PUTCHAR(10)
     IF y = 0 THEN
         VARAT(pa) := 1
         VARAT(pb) := 0
-        gcd := x
+        RETURN x
     ELSE
-        VAR a0, b0
-        CALL exgcd(y, x % y, OFFSET(a0), OFFSET(b0))
+        VAR a0, b0, gcd
+        gcd := exgcd(y, x % y, OFFSET(a0), OFFSET(b0))
         VARAT(pa) := b0
         VARAT(pb) := a0 - b0 * (x / y)
+        RETURN gcd
     ENDIF
 ENDFUNC
 
 
 FUNC main()
-    VAR x, y, a, b
+    VAR x, y, a, b, gcd
     CALL print("Input x:")
     x := geti()
     CALL print("Input y:")
     y := geti()
-    CALL exgcd(x, y, OFFSET(a), OFFSET(b))
+    gcd := exgcd(x, y, OFFSET(a), OFFSET(b))
     CALL print(" a = ")
-    CALL printSignedInt(a)
+    CALL printInt(a)
     PUTCHAR(10)
     CALL print(" b = ")
-    CALL printSignedInt(b)
+    CALL printInt(b)
     PUTCHAR(10)
     CALL print(" gcd = ")
-    CALL printSignedInt(gcd)
+    CALL printInt(gcd)
     PUTCHAR(10)
 ENDFUNC

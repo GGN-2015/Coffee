@@ -1070,6 +1070,7 @@ get_new_var:
         if(getToken().type == TOKEN_NUMBER) {
             const Token& tokenNum = match(TOKEN_NUMBER, "NUMBER");
             CodeMgr::getInstance().pushConstant(mFunctionName, -atoi(tokenNum.raw.c_str()));
+            varCnt ++;
         }else
         if(getToken().type == TOKEN_IDENTIFIER) {
             matchIdentifierExpression(varCnt);
@@ -1084,7 +1085,6 @@ get_new_var:
                 getToken().col
             );
         }
-        varCnt ++;
     }else
     if(getToken().type == TOKEN_OFFSET) {
         match(TOKEN_OFFSET, "OFFSET");
