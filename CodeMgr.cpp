@@ -13,7 +13,7 @@ CodeMgr& CodeMgr::getInstance() {
 }
 
 
-void CodeMgr::clearFunc(std::string funcName) {
+void CodeMgr::clearFunc(std::string funcName) { // clear and create
     mFuncCode[funcName] = "";
 }
 

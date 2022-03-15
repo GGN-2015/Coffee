@@ -16,7 +16,7 @@ public:
     static bool isCompare(char c);
     static bool isSingleOpe(char c); // the operator with only a single char
     static int  getSingleOpeId(char c);
-    static std::string getRealString(std::string raw);
+    static std::string getRealString(std::string raw, int line, int col);
     static char getTransChar(char ch, int& flag);
     static std::string fillStrTo(std::string strNow, int length);
     
@@ -26,6 +26,8 @@ public:
     
     static bool isIntegerOperator(int type);
     static int priority(int type);
+    
+    static bool checkHex(char *hexChar);
 };
 
 #endif

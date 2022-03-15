@@ -825,7 +825,10 @@ void ProgramReader::compileAsm(int lineFrom) {
     const Token& tokenStr = match(TOKEN_STRING, "STRING");
     match(TOKEN_CLOSE, ")");
     match(TOKEN_ENDOFLINE, "END_OF_LINE");
-    CodeMgr::getInstance().appendFuncAsm(mFunctionName, Utils::getRealString(tokenStr.raw));
+    CodeMgr::getInstance().appendFuncAsm(mFunctionName, Utils::getRealString(tokenStr.raw,
+        mLineNow,
+        tokenStr.col
+    ));
     mLineNow = lineFrom + 1;
 }
 
@@ -1072,7 +1075,7 @@ get_new_var:
     }else
     if(getToken().type == TOKEN_STRING) {
         const Token& tokenStr = getToken(); nextToken();
-        std::string realString = Utils::getRealString(tokenStr.raw);
+        std::string realString = Utils::getRealString(tokenStr.raw, mLineNow, tokenStr.col);
         if(realString.length() == 1) {
             CodeMgr::getInstance().pushConstant(mFunctionName, (unsigned)realString[0]);
             varCnt ++;

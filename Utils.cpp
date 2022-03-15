@@ -1,3 +1,6 @@
+#include <cstdio>
+
+
 #include "ErrorReport.h"
 #include "KeywordMap.h"
 #include "Utils.h"
@@ -155,7 +158,7 @@ char Utils::getTransChar(char ch, int& flag) {
 }
 
 
-std::string Utils::getRealString(std::string raw) {
+std::string Utils::getRealString(std::string raw, int line, int col) {
     std::string realStr = "";
     for(int i = 1; i < raw.length() - 1; i ++) {
         if(raw[i] != '\\') {
@@ -163,9 +166,36 @@ std::string Utils::getRealString(std::string raw) {
         }else {
             i ++;
             int flag = 0;
-            char ch = getTransChar(raw[i], flag);
-            if(!flag) {
-                realStr += ch;
+            if(raw[i] == 'x') {
+                if(i + 2 < raw.length() - 1) {
+                    char hexChar[3] = {raw[i+1], raw[i+2], 0};
+                    int val;
+                    if(!checkHex(hexChar)) {
+                        ErrorReport::getInstance().send(
+                            true,
+                            "Lexical Error",
+                            " after '\\x' there should be two LOWERCASE hex digit",
+                            line,
+                            col + i
+                        );
+                    }
+                    sscanf(hexChar, "%x", &val);
+                    realStr += (char)val;
+                }else {
+                    ErrorReport::getInstance().send(
+                        true,
+                        "Lexical Error",
+                        "'\\x' need two char after it, but get '" + std::to_string(raw.length() - 2 - i) + "'",
+                        line,
+                        col + i
+                    );
+                }
+                i += 2;
+            }else {
+                char ch = getTransChar(raw[i], flag);
+                if(!flag) {
+                    realStr += ch;
+                }
             }
         }
     }
@@ -178,4 +208,14 @@ std::string Utils::fillStrTo(std::string strNow, int length) {
         strNow += " ";
     }
     return strNow;
+}
+
+
+bool Utils::checkHex(char *hexChar) {
+    for(int i = 0; hexChar[i]; i ++) {
+        if(!(Utils::isDigit(hexChar[i]) || ('a' <= hexChar[i] && hexChar[i] <= 'f'))) {
+            return false;
+        }
+    }
+    return true;
 }

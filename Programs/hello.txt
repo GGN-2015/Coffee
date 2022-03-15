@@ -14,5 +14,5 @@ ENDFUNC
 
 
 FUNC main()
-    CALL print("Hello Quote\"\n like this!")
+    CALL print("Hello Quote\" \x0a like this!")
 ENDFUNC
