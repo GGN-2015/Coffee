@@ -44,7 +44,7 @@ public:
     void jzElse (std::string mFunctionName, int ifIdNow);
     void setElse  (std::string mFunctionName, int ifIdNow);
     void setGlobalString(std::string mFunctionName, int offset, std::string realString);
-    void setGlobalVar(std::string varName, int length);
+    void setGlobalVar(std::string varName, int length, const int* arr, int val_len);
     void pushConstant(std::string mFunctionName, int value);
     void pushAX(std::string mFunctionName);
     void outputStackTop(std::string funcName);

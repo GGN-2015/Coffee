@@ -340,6 +340,21 @@ void ProgramReader::compile() {
 }
 
 
+int ProgramReader::matchConstInt() {
+    int negflag = 0;
+    if(getToken().type == TOKEN_SUB) {
+        negflag = 1;
+        match(TOKEN_SUB, "-");
+    }
+    const Token& tokenNum = match(TOKEN_NUMBER, "NUMBER");
+    int ans = atoi(tokenNum.raw.c_str());
+    if(negflag) {
+        ans = - ans;
+    }
+    return ans;
+}
+
+
 void ProgramReader::compileVar(int lineFrom) {
     openLine(lineFrom);
     match(TOKEN_VAR, "VAR"); // default jump this token
@@ -378,7 +393,44 @@ take_on_vars:
         );
     }
     if(mFunctionName == "") { // register a global var in stack segment
-        CodeMgr::getInstance().setGlobalVar(token -> raw, length);
+        if(getToken().type == TOKEN_ASS) {
+            match(TOKEN_ASS, ":=");
+            int* arr = new int[length];
+            int val;
+            for(int i = 0; i < length; i ++) {
+                arr[i] = 0;
+            }
+            int arguCnt = 0;
+            if(length == 1) {
+                val = matchConstInt();
+                arr[0] = val;
+                arguCnt = 1;
+            }else { // length > 1
+                
+                match(TOKEN_INDEXOPEN, "[");
+global_var_string_next_argu:
+                val = matchConstInt();
+                if(arguCnt >= length) {
+                    ErrorReport::getInstance().send(
+                        true,
+                        "Semantic Error",
+                        "Initialize list too long for string '" + token -> raw + "' ",
+                        mLineNow,
+                        getToken().col
+                    );
+                }
+                arr[arguCnt ++] = val;
+                if(getToken().type == TOKEN_COMMA) {
+                    nextToken();
+                    goto global_var_string_next_argu;
+                }
+                match(TOKEN_INDEXCLOSE, "]");
+            }
+            CodeMgr::getInstance().setGlobalVar(token -> raw, length, arr, arguCnt);
+            delete[] arr;
+        }else {
+            CodeMgr::getInstance().setGlobalVar(token -> raw, length, nullptr, 0);
+        }
     }
     if(getToken().type == TOKEN_ASS && mFunctionName != "") {
         int offset = VarMgr::getInstance().getVarOffset(mFunctionName, 

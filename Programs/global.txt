@@ -1,0 +1,29 @@
+VAR primeTable[100] := [0, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
+VAR primeCnt := 25
+
+
+FUNC printInt(x)
+    VAR stk[10], stktop
+    stktop := 0
+    IF x = 0 THEN
+        PUTCHAR('0')
+    ELSE
+        WHILE x <> 0 LOOP
+            stk[stktop] := x % 10
+            x := x / 10
+            stktop := stktop + 1
+        ENDWHILE
+        WHILE stktop > 0 LOOP
+            PUTCHAR(stk[stktop - 1] + 48)
+            stktop := stktop - 1
+        ENDWHILE
+    ENDIF
+    PUTCHAR(' ')
+ENDFUNC
+
+
+FUNC main()
+    FOR i := 1 TO primeCnt DO
+        CALL printInt(primeTable[i])
+    ENDFOR
+ENDFUNC

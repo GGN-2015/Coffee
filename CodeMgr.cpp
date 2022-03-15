@@ -516,8 +516,21 @@ void CodeMgr::getNotStackTop(std::string funcName) {
 }
 
 
-void CodeMgr::setGlobalVar(std::string varName, int length) {
-    stackSegment += "    GLOBAL_" + varName + " DW " + std::to_string(length) + " DUP(0)\n";
+void CodeMgr::setGlobalVar(std::string varName, int length, const int* arr, int val_len) {
+    if(arr == nullptr) {
+        stackSegment += "    GLOBAL_" + varName + " DW " + std::to_string(length) + " DUP(0)\n";
+    }else {
+        stackSegment += "    GLOBAL_" + varName + " DW ";
+        for(int i = 0; i < val_len; i ++) {
+            if(i != 0) stackSegment += ", ";
+            stackSegment += std::to_string(arr[i]);
+        }
+        if(val_len < length) {
+            if(val_len != 0) stackSegment += ",";
+            stackSegment += " " + std::to_string(length - val_len) + " DUP(0)";
+        }
+        stackSegment += "\n";
+    }
     stackSegmentLengthWord += length;
 }
 
