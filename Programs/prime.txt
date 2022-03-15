@@ -1,6 +1,5 @@
 FUNC printInt(x)
-    VAR stk[10], stktop
-    stktop := 0
+    VAR stk[10], stktop := 0
     IF x = 0 THEN
         PUTCHAR('0')
     ELSE
@@ -22,29 +21,19 @@ FUNC isprime(x)
     IF x <= 1 THEN        ; x is not prime
         RETURN 0
     ENDIF
-    VAR i
-    i := 2
-    WHILE i < x LOOP
+    FOR i := 2 TO x-1 DO
         IF x % i = 0 THEN ; x is not prime
-            BREAK
+            RETURN 0
         ENDIF
-        i := i + 1
-    ENDWHILE
-    IF i < x THEN
-        RETURN 0
-    ELSE
-        RETURN 1
-    ENDIF
+    ENDFOR
+    RETURN 1
 ENDFUNC
 
 
 FUNC main()
-    VAR i
-    i := 1
-    WHILE i <= 100 LOOP
+    FOR i := 1 TO 100 DO
         IF isprime(i) THEN
             CALL printInt(i)
         ENDIF
-        i := i + 1
-    ENDWHILE
+    ENDFOR
 ENDFUNC

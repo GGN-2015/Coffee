@@ -174,7 +174,7 @@ std::string Utils::getRealString(std::string raw, int line, int col) {
                         ErrorReport::getInstance().send(
                             true,
                             "Lexical Error",
-                            " after '\\x' there should be two LOWERCASE hex digit",
+                            " after '\\x' there should be two HEX digit",
                             line,
                             col + i
                         );
@@ -211,9 +211,14 @@ std::string Utils::fillStrTo(std::string strNow, int length) {
 }
 
 
+bool Utils::isHexChar(char ch) {
+    return Utils::isDigit(ch) || ('a' <= ch && ch <= 'f') || ('A' <= ch && ch <= 'F');
+}
+
+
 bool Utils::checkHex(char *hexChar) {
     for(int i = 0; hexChar[i]; i ++) {
-        if(!(Utils::isDigit(hexChar[i]) || ('a' <= hexChar[i] && hexChar[i] <= 'f'))) {
+        if(!isHexChar(hexChar[i])) {
             return false;
         }
     }

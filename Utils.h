@@ -28,6 +28,7 @@ public:
     static int priority(int type);
     
     static bool checkHex(char *hexChar);
+    static bool isHexChar(char ch);
 };
 
 #endif
