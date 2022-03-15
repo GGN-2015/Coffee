@@ -380,6 +380,46 @@ take_on_vars:
     if(mFunctionName == "") { // register a global var in stack segment
         CodeMgr::getInstance().setGlobalVar(token -> raw, length);
     }
+    if(getToken().type == TOKEN_ASS && mFunctionName != "") {
+        int offset = VarMgr::getInstance().getVarOffset(mFunctionName, 
+            token -> raw,
+            mLineNow,
+            token -> col
+        );
+        match(TOKEN_ASS, ":=");
+        if(length == 1) {
+            matchExpression();
+            CodeMgr::getInstance().popToLocalVar(mFunctionName, offset);
+        }else {
+            CodeMgr::getInstance().pushLocalVarOffset(mFunctionName, offset + length - 1);
+            CodeMgr::getInstance().pushConstant(mFunctionName, length);
+            CodeMgr::getInstance().memset(mFunctionName, 0);
+            int arguCnt = 0;
+            match(TOKEN_INDEXOPEN, "[");
+            if(getToken().type != TOKEN_INDEXCLOSE) {
+get_array_member_init:
+                CodeMgr::getInstance().pushLocalVarOffset(mFunctionName, offset + length - 1);
+                CodeMgr::getInstance().pushConstant(mFunctionName, arguCnt);
+                matchExpression();
+                CodeMgr::getInstance().popToArrayVar(mFunctionName);
+                arguCnt ++;   
+                if(getToken().type == TOKEN_COMMA) {
+                    match(TOKEN_COMMA, ",");
+                    goto get_array_member_init;
+                }
+            }
+            const Token& tokenClose = match(TOKEN_INDEXCLOSE, "]");
+            if(arguCnt > length) {
+                ErrorReport::getInstance().send(
+                    true,
+                    "Syntax Error",
+                    "Too many initial value for array '" + token -> raw + "' ",
+                    mLineNow,
+                    tokenClose.col
+                );
+            }
+        }
+    }
     if(getToken().type == TOKEN_COMMA) {
         match(TOKEN_COMMA, ",");
         goto take_on_vars;
@@ -390,7 +430,7 @@ take_on_vars:
         ErrorReport::getInstance().send(
             true,
             "Syntax Error",
-            "Expected ',' or 'END_OF_LINE' get '" + getToken().raw + "'",
+            "Expected ',' or 'END_OF_LINE' but get '" + getToken().raw + "'",
             mLineId,
             getToken().col
         );
@@ -601,9 +641,9 @@ void ProgramReader::compileAssign(int lineFrom) {
             match(TOKEN_ASS, ":=");
             matchExpression();
             if(isLocal) {
-                CodeMgr::getInstance().PopToLocalVar(mFunctionName, offset);
+                CodeMgr::getInstance().popToLocalVar(mFunctionName, offset);
             }else {
-                CodeMgr::getInstance().PopToGlobalVar(mFunctionName, offset);
+                CodeMgr::getInstance().popToGlobalVar(mFunctionName, offset);
             }
         }else {
             if(isLocal) {
@@ -720,7 +760,7 @@ void ProgramReader::compileFor(int lineFrom) {
     }
     match(TOKEN_ASS, ":=");
     matchExpression();
-    CodeMgr::getInstance().PopToLocalVar(mFunctionName, offset);
+    CodeMgr::getInstance().popToLocalVar(mFunctionName, offset);
     CodeMgr::getInstance().setWhileBegin(mFunctionName, whileId);
     match(TOKEN_TO, "TO");
     matchExpression();
@@ -770,7 +810,7 @@ void ProgramReader::compileFor(int lineFrom) {
     CodeMgr::getInstance().pushLocalVarValue(mFunctionName, offset); // set new value for loop var
     CodeMgr::getInstance().pushConstant(mFunctionName, step);
     CodeMgr::getInstance().addStackTop(mFunctionName);
-    CodeMgr::getInstance().PopToLocalVar(mFunctionName, offset); 
+    CodeMgr::getInstance().popToLocalVar(mFunctionName, offset); 
     CodeMgr::getInstance().backToWhileBegin(mFunctionName, whileId);
     CodeMgr::getInstance().setEndWhile(mFunctionName, lineFrom);
     mLineNow = end + 1;

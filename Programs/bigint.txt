@@ -1,9 +1,5 @@
 FUNC main()
-    VAR arr[100], acnt, x, y
-    x := 2
-    y := 100
-    arr[0] := 1
-    acnt := 1
+    VAR arr[100] := [1, 0, 0], acnt := 1, x := 2, y := 100
     FOR i := 1 TO y DO
         FOR j := 0 TO acnt - 1 DO
             arr[j] := arr[j] * x

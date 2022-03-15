@@ -110,13 +110,13 @@ void CodeMgr::pushGlobalVarValue(std::string funcName, int offset) {
 }
 
 
-void CodeMgr::PopToLocalVar(std::string funcName, int offset) {
+void CodeMgr::popToLocalVar(std::string funcName, int offset) {
     appendFunc(funcName, "    POP AX");
     appendFunc(funcName, "    MOV [BP-" + std::to_string((offset + 1) * 2) + "], AX");
 }
 
 
-void CodeMgr::PopToGlobalVar(std::string funcName, int offset) {
+void CodeMgr::popToGlobalVar(std::string funcName, int offset) {
     appendFunc(funcName, "    POP AX");
     appendFunc(funcName, "    MOV SI, " + std::to_string(offset * 2));
     appendFunc(funcName, "    MOV [SI], AX");
@@ -527,3 +527,16 @@ void CodeMgr::negStackTop(std::string funcName) {
     appendFunc(funcName, "    NEG AX");
     appendFunc(funcName, "    PUSH AX");
 }
+
+
+void CodeMgr::memset(std::string funcName, int value) {
+    int jumpId = ++ jumpCnt;
+    std::string jumpName = "JUMP_" + std::to_string(jumpId);
+    appendFunc(funcName, "    POP CX"); // length
+    appendFunc(funcName, "    POP BX"); // offset
+    appendFunc(funcName, jumpName+ ":");
+    appendFunc(funcName, "    MOV WORD PTR [BX], " + std::to_string(value));
+    appendFunc(funcName, "    ADD BX, 2");
+    appendFunc(funcName, "    LOOP " + jumpName);
+}
+

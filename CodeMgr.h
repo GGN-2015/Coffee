@@ -26,8 +26,8 @@ public:
     
     void pushLocalVarValue(std::string mFunctionName, int offset);
 	void pushGlobalVarValue(std::string mFunctionName, int offset);
-	void PopToLocalVar(std::string mFunctionName, int offset);
-	void PopToGlobalVar(std::string mFunctionName, int offset);
+	void popToLocalVar(std::string mFunctionName, int offset);
+	void popToGlobalVar(std::string mFunctionName, int offset);
 	void popToArrayVar(std::string funcName);
 	void PopToVarAt(std::string mFunctionName);
 	void swapStack(std::string mFunction, int i, int j);
@@ -75,6 +75,7 @@ public:
     void negStackTop(std::string funcName);
     
     void MOV(std::string funcName, std::string regTo, std::string regFrom);
+    void memset(std::string mFunctionName, int value);
     
     void outputCode(int stackSegmentSizeWord = 1024);
     
