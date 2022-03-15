@@ -57,6 +57,36 @@ FUNC readFile(pFileName)
 ENDFUNC
 
 
+FUNC createFile(pFileName, intMode)
+    CALL compact(pFileName)              ; get compact filename
+    ASM("MOV AH, 3CH")                   ; int = create file
+    ASM("LEA DX, GLOBAL_compact_buffer") ;   set filename
+    ASM("MOV CX, [BP-4]")                ;   set mode
+    ASM("INT 21H")                       ; int, no error return AX = 0
+ENDFUNC
+
+
+FUNC delFile(pFileName)
+    CALL compact(pFileName)              ; get compact filename
+    ASM("MOV AH, 41H")                   ; int = delete file
+    ASM("LEA DX, GLOBAL_compact_buffer") ;   set filename
+    ASM("INT 21H")                       ; int, no error return AX = 0
+ENDFUNC
+
+
+FUNC writeFile(pFileName)
+    CALL createFile(pFileName, 0)        ; create new file and delete old one
+    ASM("MOV AH, 3DH")                   ; int = open file
+    ASM("MOV AL, 1")                     ;   mode: write
+    ASM("LEA DX, GLOBAL_compact_buffer") ;   set filename
+    ASM("INT 21H")                       ; int
+    ASM("JC WRITE_FILE_ERR")             ; if no error
+    ASM("JMP ENDFUNC_writeFile")         ;   return AX
+    ASM("WRITE_FILE_ERR:")               ; else
+    ASM("MOV AX, -1")                    ;   return -1
+ENDFUNC
+
+
 FUNC closeFile(fp)                       ;
     ASM("MOV AH, 3EH")                   ; int = close file
     ASM("MOV BX, [BP-2]")                ;   handle = fp
@@ -81,10 +111,25 @@ FUNC fgetc(fpin)
 ENDFUNC
 
 
-FUNC main()                              ; output FILE.TXT to screen
+FUNC fputc(fpout, chTmp)
+    ASM("MOV AH, 40H")                   ; int = write file
+    ASM("MOV BX, [BP-2]")                ;   FILE* = fpout
+    ASM("LEA DX, [BP-4]")                ;   store to chTmp
+    ASM("MOV CX, 1")                     ;   readCnt = 1
+    ASM("INT 21H")                       ; int
+    ASM("AND AX, AX")                    ; AX: is the realtime readCnt
+    ASM("JNZ FPUTC_FILE_NOT_END")        ; if AX = 0
+    ASM("MOV AX, -1")                    ;   return = EOF
+    ASM("JMP ENDFUNC_fgetc")             ;   return
+    ASM("FPUTC_FILE_NOT_END:")
+    RETURN chTmp
+ENDFUNC
+
+
+FUNC showFile(pFileName)
     VAR fpin, ch
-    fpin := readFile("FILE.TXT")      ; just open a file, save handle to fpin
-    IF fpin = -1 THEN                 ; fpin = -1 means fail to open file
+    fpin := readFile(pFileName)      ; just open a file, save handle to fpin
+    IF fpin = -1 THEN                ; fpin = -1 means fail to open file
         CALL print("FAIL TO OPENFILE\n")
         RETURN
     ENDIF
@@ -94,4 +139,30 @@ FUNC main()                              ; output FILE.TXT to screen
         ch := fgetc(fpin)
     ENDWHILE
     CALL closeFile(fpin)
+ENDFUNC
+
+
+FUNC setFile(pFileName, pString)
+    VAR fpout, ch
+    fpout := writeFile(pFileName)
+    IF fpout = -1 THEN
+        CALL print("FAIL TO CLOSEFILE\n")
+        RETURN
+    ENDIF
+    VAR i
+    i := 0
+    WHILE VARAT(pString + 2 * i) <> 0 LOOP
+        CALL fputc(fpout, VARAT(pString + 2 * i))
+        i := i + 1
+    ENDWHILE
+    CALL closeFile(fpout)
+ENDFUNC
+
+
+FUNC main()
+    CALL showFile("FILE.TXT")
+    PUTCHAR('\n')
+    CALL setFile("FILE.TXT", "Hello Inner ASM!")
+    CALL showFile("FILE.TXT")
+    PUTCHAR('\n')
 ENDFUNC
