@@ -4,3 +4,5 @@
 COFFEE.layout
 *.layout
 *.layout
+*.dev
+*.win

@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
 CompilerSettings=0000000000000000001000000
-UnitCount=15
+UnitCount=17
 
 [VersionInfo]
 Major=1
@@ -192,6 +192,26 @@ BuildCmd=
 
 [Unit15]
 FileName=CodeMgr.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit16]
+FileName=TypeMgr.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit17]
+FileName=TypeMgr.cpp
 CompileCpp=1
 Folder=
 Compile=1

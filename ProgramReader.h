@@ -45,9 +45,13 @@ public:
 	void compilePutchar(int lineFrom);
 	
 protected:
+    std::vector<std::string> mTypeVector;  // record a type
+    
     void matchExpression();                // important part of evaluate
 	void matchIdentifierExpression(int&);
 	int matchConstInt();
+	void matchType();
+	void matchTypeRecurse();               // matchTypeRecurse is part of matchType
     
     ProgramReader(): mLineId(-1), mTokenId(-1) {ifCnt = stringCnt = 0;}
     void parseNewline();                   // parse the last line and append to mTokenTable
@@ -69,14 +73,14 @@ protected:
     
     std::stack<int> whileStack;
     
-    void openLine(int lineId);             // open a line and begin to read tokens 
-	const Token& getToken();               // get a token
-	void nextToken();                      // skip current token
-	void backToken();                      // giveback current token
+    void openLine(int lineId);                // open a line and begin to read tokens 
+	const Token& getToken();                  // get a token
+	void nextToken();                         // skip current token
+	void backToken();                         // giveback current token
 	const Token& match(int type, 
-        std::string, bool jump = true);    // match a certain type of token
+        std::string, bool jump = true);       // match a certain type of token
         
-    void compute(std::stack<int>& opeStack);                        // pop an operator from stack
+    void compute(std::stack<int>& opeStack);  // pop an operator from stack
 };
 
 
