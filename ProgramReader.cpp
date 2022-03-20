@@ -8,7 +8,6 @@
 #include "KeywordMap.h"
 #include "ProgramReader.h"
 #include "Parser.h"
-#include "TypeMgr.h"
 #include "Utils.h"
 #include "VarMgr.h"
 
@@ -323,7 +322,7 @@ void ProgramReader::compile() {
         if(firstToken.type == TOKEN_ENDOFLINE) { // jump empty line
             mLineNow ++;
         }else
-        if(firstToken.type == TOKEN_VAR) { // get var defination
+        if(firstToken.type == TOKEN_VAR) {
             compileVar(mLineNow);
         }else 
         if(firstToken.type == TOKEN_FUNC) {
@@ -1039,50 +1038,6 @@ match_close_here:
             CodeMgr::getInstance().getArrayElementValue(mFunctionName);
         }
         varCnt ++;
-    }
-}
-
-
-void ProgramReader::matchType() {
-    mTypeVector.clear();
-    matchTypeRecurse();
-}
-
-
-void ProgramReader::matchTypeRecurse() {
-    if(getToken().type == TOKEN_INT) {
-        mTypeVector.push_back("INT"); nextToken();
-    }else if(getToken().type == TOKEN_POINTER) {
-        mTypeVector.push_back("POINTER"); nextToken();
-        matchType(); // match a type recursively
-    }else if(getToken().type == TOKEN_ARRAY) {
-        mTypeVector.push_back("ARRAY"); nextToken();
-        match(TOKEN_INDEXOPEN, "[");
-        const Token& tokenNumber = match(TOKEN_NUMBER, "NUMBER");
-        match(TOKEN_INDEXOPEN, "]");
-        mTypeVector.push_back(tokenNumber.raw);
-        matchType();
-    }else if(getToken().type == TOKEN_STRUCT) {
-        mTypeVector.push_back("STRUCT"); nextToken();
-        const Token& tokenIden = match(TOKEN_IDENTIFIER, "IDENTIFIER");
-        mTypeVector.push_back(tokenIden.raw);
-        if(!TypeMgr::getInstance().isStruct(tokenIden.raw)) { // check if it is a name of sturct
-            ErrorReport::getInstance().send(
-                true,
-                "Syntax Error",
-                "'" + tokenIden.raw + "' is not a name of struct",
-                mLineNow,
-                tokenIden.col
-            );
-        }
-    }else {
-        ErrorReport::getInstance().send(
-            true,
-            "Syntax Error",
-            "Need a type but get a '" + getToken().raw + "'",
-            mLineNow,
-            getToken().col
-        );
     }
 }
 

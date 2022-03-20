@@ -10,7 +10,6 @@ struct VarPair {
     VarPair(std::string vn, int len): varName(vn), length(len){}
     std::string varName;
     int length;
-    std::vector<std::string > varType;
 };
 
 

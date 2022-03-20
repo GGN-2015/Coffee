@@ -75,12 +75,6 @@
 #define TOKEN_ASM         (47) // ASM "MOV AX, BX"
 
 
-#define TOKEN_INT         (48) // INT
-#define TOKEN_POINTER     (49) // POINTER
-#define TOKEN_ARRAY       (50) // ARRAY
-#define TOKEN_STRUCT      (51) // STRUCT
-
-
 class KeywordMap
 {
 public:
@@ -116,12 +110,6 @@ protected:
         mKeywordId["OR"      ] = TOKEN_OR      ;
         mKeywordId["NOT"     ] = TOKEN_NOT     ;
         mKeywordId["ASM"     ] = TOKEN_ASM     ;
-        
-        // type relevant
-        mKeywordId["INT"     ] = TOKEN_INT     ;
-        mKeywordId["POINTER" ] = TOKEN_POINTER ;
-        mKeywordId["ARRAY"   ] = TOKEN_ARRAY   ;
-        mKeywordId["STRUCT"  ] = TOKEN_STRUCT  ;
     }
     
     std::map<std::string, int> mKeywordId;
