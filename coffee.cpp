@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
         cm.outputCode(16384);
         // vm.debugShow();
     }
+    ProgramReader::clearAllInstance();
     return 0;
 }
 

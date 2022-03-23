@@ -1,27 +1,27 @@
-VAR buffer[129], charCnt
+VAR BUILTIN_GETS_BUF[129], BUILTIN_GETS_CHARCOUNT
 
 
 FUNC gets()
     VAR ch
     ch := GETCHAR()
-    charCnt := 0
+    BUILTIN_GETS_CHARCOUNT := 0
     WHILE 1 LOOP
         IF ch = 10 OR ch = 13 THEN
-            buffer[charCnt] := 0
-            RETURN OFFSET buffer
+            BUILTIN_GETS_BUF[BUILTIN_GETS_CHARCOUNT] := 0
+            RETURN OFFSET(BUILTIN_GETS_BUF)
         ELSE
             IF ch <> 8 THEN
-                IF charCnt < 128 THEN
-                    buffer[charCnt] := ch
-                    charCnt := charCnt + 1
+                IF BUILTIN_GETS_CHARCOUNT < 128 THEN
+                    BUILTIN_GETS_BUF[BUILTIN_GETS_CHARCOUNT] := ch
+                    BUILTIN_GETS_CHARCOUNT := BUILTIN_GETS_CHARCOUNT + 1
                 ELSE
                     PUTCHAR(8)
                     PUTCHAR(32)
                     PUTCHAR(8)
                 ENDIF
             ELSE
-                IF charCnt > 0 THEN
-                    charCnt := charCnt - 1
+                IF BUILTIN_GETS_CHARCOUNT > 0 THEN
+                    BUILTIN_GETS_CHARCOUNT := BUILTIN_GETS_CHARCOUNT - 1
                     PUTCHAR(32)
                     PUTCHAR(8)
                 ENDIF
@@ -48,14 +48,14 @@ FUNC geti()
     i := 0
     ans := 0
     negflag := 0
-    WHILE '0' > buffer[i] OR buffer[i] > '9' LOOP
-        IF buffer[i] = '-' THEN
+    WHILE '0' > BUILTIN_GETS_BUF[i] OR BUILTIN_GETS_BUF[i] > '9' LOOP
+        IF BUILTIN_GETS_BUF[i] = '-' THEN
             negflag := 1
         ENDIF
         i := i + 1
     ENDWHILE
-    WHILE '0' <= buffer[i] AND buffer[i] <= '9' LOOP
-        ans := ans * 10 + buffer[i] - '0'
+    WHILE '0' <= BUILTIN_GETS_BUF[i] AND BUILTIN_GETS_BUF[i] <= '9' LOOP
+        ans := ans * 10 + BUILTIN_GETS_BUF[i] - '0'
         i := i + 1
     ENDWHILE
     IF negflag THEN
@@ -70,7 +70,7 @@ FUNC printInt(x)
     VAR stk[10], stktop
     stktop := 0
     IF x < 0 THEN
-        x = - x
+        x := - x
         PUTCHAR('-')
     ENDIF
     IF x = 0 THEN
@@ -86,14 +86,6 @@ FUNC printInt(x)
             stktop := stktop - 1
         ENDWHILE
     ENDIF
-    PUTCHAR(' ')
+    ; PUTCHAR(' ')
 ENDFUNC
 
-
-FUNC main()
-    VAR iVal
-    CALL print("Input a number:")
-    iVal := geti()
-    CALL print("You Input:")
-    CALL printInt(iVal)
-ENDFUNC

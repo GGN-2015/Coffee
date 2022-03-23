@@ -12,14 +12,71 @@
 #include "VarMgr.h"
 
 
+static int ifCnt     = 0;
+static int stringCnt = 0;
+static int whileCnt  = 0;
+
+
+int ProgramReader::getColumnNow() {
+    if(mTokenId < mTokenTable[mLineId].size()) {
+        return mTokenTable[mLineId][mTokenId].col;
+    }else {
+        return 0;
+    }
+}
+
+
+int ProgramReader::getLineNow() {
+    return mLineNow;
+}
+
+
+ProgramReader& ProgramReader::newInstance() {
+    objStack.push(new ProgramReader);
+    return *objStack.top();
+}
+
+
+std::stack<ProgramReader*> ProgramReader::objStack;
+
+
+void ProgramReader::clearInstance() {
+    if(!objStack.empty()) {
+        delete objStack.top();
+        objStack.pop();
+    }else {
+        ErrorReport::getInstance().send(
+            true, 
+            "Inner Error",
+            "ProgramReader::clearInstance when objStack is empty"
+        );
+    }
+}
+
+
+void ProgramReader::clearAllInstance() {
+    while(!objStack.empty()) {
+        delete objStack.top();
+        objStack.pop();
+    }
+}
+
+
+std::string ProgramReader::getFileName() const {
+    return mFileName;
+}
+
+
 void Token::debugOutput() const {
     printf("[%5d %5d %20s]\n", col, type, raw.c_str());
 }
 
 
 ProgramReader& ProgramReader::getInstance() {
-    static ProgramReader pr;
-    return pr;
+    if(objStack.empty()) {
+        objStack.push(new ProgramReader);
+    }
+    return *objStack.top();
 }
 
 
@@ -327,11 +384,27 @@ void ProgramReader::compile() {
         }else 
         if(firstToken.type == TOKEN_FUNC) {
             compileFunction(mLineNow);
-        }else {
+        }else 
+        if(firstToken.type == TOKEN_IMPORT) {
+            openLine(mLineNow);
+            match(TOKEN_IMPORT, "IMPORT"); 
+            const Token& tokenStr = match(TOKEN_STRING, "STRING");
+            match(TOKEN_ENDOFLINE, "END_OF_LINE");
+            std::string fileName = Utils::getRealString(tokenStr.raw, mLineNow, tokenStr.col);
+            ProgramReader& pr = newInstance();
+            pr.open(fileName);
+            // pr.debugOutput(); // show  full text of the input program
+            // pr.debugParser(); // show  all tokens of the input program
+            // pr.debugBrace();
+            pr.compile();
+            clearInstance();
+            mLineNow ++;
+        }else
+        {
             ErrorReport::getInstance().send(
                 true,
                 "Syntax Error",
-                "Expected 'FUNC' or 'VAR' get '" + firstToken.raw + "'",
+                "Expected 'FUNC' or 'VAR' or 'IMPORT' get '" + firstToken.raw + "'",
                 mLineNow,
                 firstToken.col
             );
@@ -766,7 +839,7 @@ match_close:
 void ProgramReader::compileWhile(int lineFrom) {
     mLineNow = lineFrom;
     openLine(lineFrom);
-    int whileId = lineFrom;
+    int whileId = ++ whileCnt;
     CodeMgr::getInstance().setWhileBegin(mFunctionName, whileId);
     match(TOKEN_WHILE, "WHILE");
     matchExpression();
@@ -789,7 +862,7 @@ void ProgramReader::compileWhile(int lineFrom) {
 void ProgramReader::compileFor(int lineFrom) {
     mLineNow = lineFrom;
     openLine(lineFrom);
-    int whileId = lineFrom;
+    int whileId = ++ whileCnt;
     match(TOKEN_FOR, "FOR");
     const Token& tokenIden = getToken(); nextToken();
     if(!VarMgr::getInstance().existLocalVar(mFunctionName, tokenIden.raw)) {
@@ -864,7 +937,7 @@ void ProgramReader::compileFor(int lineFrom) {
     CodeMgr::getInstance().addStackTop(mFunctionName);
     CodeMgr::getInstance().popToLocalVar(mFunctionName, offset); 
     CodeMgr::getInstance().backToWhileBegin(mFunctionName, whileId);
-    CodeMgr::getInstance().setEndWhile(mFunctionName, lineFrom);
+    CodeMgr::getInstance().setEndWhile(mFunctionName, whileId);
     mLineNow = end + 1;
 }
 
@@ -1128,7 +1201,16 @@ get_new_var:
     if(getToken().type == TOKEN_STRING) {
         const Token& tokenStr = getToken(); nextToken();
         std::string realString = Utils::getRealString(tokenStr.raw, mLineNow, tokenStr.col);
-        if(realString.length() == 1) {
+        if(tokenStr.raw[0] == '\'') {
+            if(realString.length() != 1) {
+                ErrorReport::getInstance().send(
+                    true,
+                    "Syntax Error",
+                    "There must be at most 1 character in string begin with <'> ",
+                    mLineNow,
+                    tokenStr.col
+                );
+            }
             CodeMgr::getInstance().pushConstant(mFunctionName, (unsigned)realString[0]);
             varCnt ++;
         }else {

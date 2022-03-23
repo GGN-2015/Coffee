@@ -29,14 +29,22 @@ void ErrorReport::send
     }
     cerr << errorType << ": ";
     cerr << errorPrompt << endl;
-    if(line != -1) {
-        fprintf(stderr, " LINE %5d | ", line);
-        cerr << ProgramReader::getInstance().getLine(line) << endl;
-        fprintf(stderr, "  COL %5d | ", col);
-        while(col --) {
-            cerr << " ";
+    while(!ProgramReader::objStack.empty()) {
+        if(line != -1) {
+            fprintf(stderr, " FILE       | %s\n", ProgramReader::getInstance().getFileName().c_str());
+            fprintf(stderr, " LINE %5d | ", line);
+            cerr << ProgramReader::getInstance().getLine(line) << endl;
+            fprintf(stderr, "  COL %5d | ", col);
+            while(col --) {
+                cerr << " ";
+            }
+            cerr << "^" << endl << endl;
         }
-        cerr << "^" << endl;
+        ProgramReader::clearInstance();
+        if(!ProgramReader::objStack.empty()) {
+            line = ProgramReader::getInstance().getLineNow();
+            col  = ProgramReader::getInstance().getColumnNow();
+        }
     }
     if(fatal) endProgram();
 }

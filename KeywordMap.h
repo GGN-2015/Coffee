@@ -73,6 +73,7 @@
 
 
 #define TOKEN_ASM         (47) // ASM "MOV AX, BX"
+#define TOKEN_IMPORT      (48) // IMPORT "io.txt"
 
 
 class KeywordMap
@@ -110,6 +111,7 @@ protected:
         mKeywordId["OR"      ] = TOKEN_OR      ;
         mKeywordId["NOT"     ] = TOKEN_NOT     ;
         mKeywordId["ASM"     ] = TOKEN_ASM     ;
+        mKeywordId["IMPORT"  ] = TOKEN_IMPORT  ;
     }
     
     std::map<std::string, int> mKeywordId;

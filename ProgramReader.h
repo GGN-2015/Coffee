@@ -24,6 +24,11 @@ class ProgramReader
 {
 public:
 	static ProgramReader& getInstance();
+	static ProgramReader& newInstance();
+	static void clearAllInstance();
+	static void clearInstance();
+	static std::stack<ProgramReader*> objStack;
+	
 	void open(std::string fileName);
 	void matchBrace();                     // match BEGIN and END
 	std::string getLine(int line);
@@ -43,13 +48,17 @@ public:
 	
 	void compileReturn(int lineFrom);
 	void compilePutchar(int lineFrom);
+	int  getLineNow();
+	int  getColumnNow();
+	
+	std::string getFileName() const;
 	
 protected:
     void matchExpression();                // important part of evaluate
 	void matchIdentifierExpression(int&);
 	int matchConstInt();
     
-    ProgramReader(): mLineId(-1), mTokenId(-1) {ifCnt = stringCnt = 0;}
+    ProgramReader(): mLineId(-1), mTokenId(-1) {}
     void parseNewline();                   // parse the last line and append to mTokenTable
     
     std::string mFileName;
@@ -62,10 +71,8 @@ protected:
     int mLineId;
     int mTokenId;
     int mLineNow;
-    int ifCnt;                             // count of if in the program
     
     std::string mFunctionName;             // the function which is being compiled
-    int stringCnt;
     
     std::stack<int> whileStack;
     
