@@ -1,16 +1,4 @@
-VAR buffer[100]
-
-
-FUNC print(pArr)
-    FOR i := 0 TO 128 BY 2 DO
-        VAR ch
-        ch := VARAT(pArr + i)
-        IF ch = 0 THEN
-            RETURN
-        ENDIF
-        PUTCHAR(ch)
-    ENDFOR
-ENDFUNC
+IMPORT "import/io.txt"
 
 
 FUNC main()

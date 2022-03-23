@@ -1,4 +1,4 @@
-VAR compact_buffer[129]
+VAR BUILTIN_COMPACT_BUF[129]
 
 
 FUNC print(pArr)
@@ -33,7 +33,7 @@ ENDFUNC
 
 FUNC compact(pArr)          ; use this function to load string into compact mode
     ASM("MOV SI, [BP-2]")   ; especially for inner ASM
-    ASM("LEA DI, GLOBAL_compact_buffer")
+    ASM("LEA DI, GLOBAL_BUILTIN_COMPACT_BUF")
     ASM("INNER_ASM_FLAG_1:")
     ASM("MOV AX, [SI]")
     ASM("MOV BYTE PTR [DI], AL")
@@ -48,7 +48,7 @@ FUNC readFile(pFileName)
     CALL compact(pFileName)              ; get compact filename
     ASM("MOV AH, 3DH")                   ; int = open file
     ASM("MOV AL, 0")                     ;   mode: read
-    ASM("LEA DX, GLOBAL_compact_buffer") ;   set filename
+    ASM("LEA DX, GLOBAL_BUILTIN_COMPACT_BUF") ;   set filename
     ASM("INT 21H")                       ; int
     ASM("JC READ_FILE_ERR")              ; if no error
     ASM("JMP ENDFUNC_readFile")          ;   return AX
@@ -60,7 +60,7 @@ ENDFUNC
 FUNC createFile(pFileName, intMode)
     CALL compact(pFileName)              ; get compact filename
     ASM("MOV AH, 3CH")                   ; int = create file
-    ASM("LEA DX, GLOBAL_compact_buffer") ;   set filename
+    ASM("LEA DX, GLOBAL_BUILTIN_COMPACT_BUF") ;   set filename
     ASM("MOV CX, [BP-4]")                ;   set mode
     ASM("INT 21H")                       ; int, no error return AX = 0
 ENDFUNC
@@ -69,7 +69,7 @@ ENDFUNC
 FUNC delFile(pFileName)
     CALL compact(pFileName)              ; get compact filename
     ASM("MOV AH, 41H")                   ; int = delete file
-    ASM("LEA DX, GLOBAL_compact_buffer") ;   set filename
+    ASM("LEA DX, GLOBAL_BUILTIN_COMPACT_BUF") ;   set filename
     ASM("INT 21H")                       ; int, no error return AX = 0
 ENDFUNC
 
@@ -78,7 +78,7 @@ FUNC writeFile(pFileName)
     CALL createFile(pFileName, 0)        ; create new file and delete old one
     ASM("MOV AH, 3DH")                   ; int = open file
     ASM("MOV AL, 1")                     ;   mode: write
-    ASM("LEA DX, GLOBAL_compact_buffer") ;   set filename
+    ASM("LEA DX, GLOBAL_BUILTIN_COMPACT_BUF") ;   set filename
     ASM("INT 21H")                       ; int
     ASM("JC WRITE_FILE_ERR")             ; if no error
     ASM("JMP ENDFUNC_writeFile")         ;   return AX
@@ -156,13 +156,4 @@ FUNC setFile(pFileName, pString)
         i := i + 1
     ENDWHILE
     CALL closeFile(fpout)
-ENDFUNC
-
-
-FUNC main()
-    CALL showFile("FILE.TXT")
-    PUTCHAR('\n')
-    CALL setFile("FILE.TXT", "Hello Inner ASM!")
-    CALL showFile("FILE.TXT")
-    PUTCHAR('\n')
 ENDFUNC

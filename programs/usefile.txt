@@ -1,0 +1,11 @@
+IMPORT "import/file.txt"
+
+
+FUNC main()
+    CALL setFile("FILE.TXT", "Hello FILE!")
+    CALL showFile("FILE.TXT")
+    PUTCHAR('\n')
+    CALL setFile("FILE.TXT", "Hello Inner ASM!")
+    CALL showFile("FILE.TXT")
+    PUTCHAR('\n')
+ENDFUNC
