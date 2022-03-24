@@ -1,34 +1,7 @@
+IMPORT "import/conio.txt"
+
+
 VAR BUILTIN_COMPACT_BUF[129]
-
-
-FUNC print(pArr)
-    VAR i
-    i := 0
-    WHILE VARAT(pArr + 2 * i) <> 0 LOOP
-        PUTCHAR(VARAT(pArr + 2 * i))
-        i := i + 1
-    ENDWHILE
-ENDFUNC
-
-
-FUNC printInt(x)
-    VAR stk[10], stktop
-    stktop := 0
-    IF x = 0 THEN
-        PUTCHAR('0')
-    ELSE
-        WHILE x <> 0 LOOP
-            stk[stktop] := x % 10
-            x := x / 10
-            stktop := stktop + 1
-        ENDWHILE
-        WHILE stktop > 0 LOOP
-            PUTCHAR(stk[stktop - 1] + 48)
-            stktop := stktop - 1
-        ENDWHILE
-    ENDIF
-    PUTCHAR(' ')
-ENDFUNC
 
 
 FUNC compact(pArr)          ; use this function to load string into compact mode

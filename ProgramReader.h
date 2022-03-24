@@ -2,6 +2,7 @@
 #define PROGRAMREADER_H
 
 
+#include <map>
 #include <string>
 #include <vector> // Current implementation is inefficient
 #include <stack>
@@ -28,6 +29,8 @@ public:
 	static void clearAllInstance();
 	static void clearInstance();
 	static std::stack<ProgramReader*> objStack;
+	static std::map<std::string, bool> sFileCompiled; // check if a file is compiled
+	static bool fileInStack(std::string fileName);
 	
 	void open(std::string fileName);
 	void matchBrace();                     // match BEGIN and END
@@ -45,6 +48,7 @@ public:
 	void compileCall(int lineFrom);
 	void compileWhile(int lineFrom);
 	void compileFor(int lineFrom);
+	void compileImport(int lineNow);
 	
 	void compileReturn(int lineFrom);
 	void compilePutchar(int lineFrom);

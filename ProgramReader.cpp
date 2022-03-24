@@ -17,6 +17,30 @@ static int stringCnt = 0;
 static int whileCnt  = 0;
 
 
+std::map<std::string, bool> ProgramReader::sFileCompiled;
+std::stack<ProgramReader*>  ProgramReader::objStack;
+
+
+bool ProgramReader::fileInStack(std::string fileName) {
+    bool flag = false;
+    std::stack<ProgramReader*> tmpStack;
+    while(!objStack.empty()) { // check all the data in tmpStack
+        ProgramReader* pr = objStack.top();
+        if(pr -> mFileName == fileName) {
+            flag = true;
+        }
+        tmpStack.push(pr);
+        objStack.pop();
+    }
+    while(!tmpStack.empty()) { // push data back to objStack
+        ProgramReader* pr = tmpStack.top();
+        objStack.push(pr);
+        tmpStack.pop();
+    }
+    return flag;
+}
+
+
 int ProgramReader::getColumnNow() {
     if(mTokenId < mTokenTable[mLineId].size()) {
         return mTokenTable[mLineId][mTokenId].col;
@@ -35,9 +59,6 @@ ProgramReader& ProgramReader::newInstance() {
     objStack.push(new ProgramReader);
     return *objStack.top();
 }
-
-
-std::stack<ProgramReader*> ProgramReader::objStack;
 
 
 void ProgramReader::clearInstance() {
@@ -372,6 +393,34 @@ void ProgramReader::backToken() {
 }
 
 
+void ProgramReader::compileImport(int lineNow) {
+    mLineNow = lineNow;
+    openLine(mLineNow);
+    const Token& tokenImport = match(TOKEN_IMPORT, "IMPORT"); 
+    const Token& tokenStr = match(TOKEN_STRING, "STRING");
+    match(TOKEN_ENDOFLINE, "END_OF_LINE");
+    std::string fileName = Utils::getRealString(tokenStr.raw, mLineNow, tokenStr.col);
+    if(!sFileCompiled[fileName]) {
+        // if the file has been compiled, ignore this import
+        if(!fileInStack(fileName)) { // check the file is in stack
+            ProgramReader& pr = newInstance();
+            pr.open(fileName);
+            pr.compile();
+            clearInstance();
+        }else {
+            ErrorReport::getInstance().send(
+                true,
+                "Import Error",
+                "file '" +fileName+ "' is Imported again during another import.",
+                mLineNow,
+                tokenImport.col
+            );
+        }
+    }
+    mLineNow ++;
+}
+
+
 void ProgramReader::compile() {
     mLineNow = 0;
     while(mLineNow < mProgramLine.size()) {
@@ -386,19 +435,7 @@ void ProgramReader::compile() {
             compileFunction(mLineNow);
         }else 
         if(firstToken.type == TOKEN_IMPORT) {
-            openLine(mLineNow);
-            match(TOKEN_IMPORT, "IMPORT"); 
-            const Token& tokenStr = match(TOKEN_STRING, "STRING");
-            match(TOKEN_ENDOFLINE, "END_OF_LINE");
-            std::string fileName = Utils::getRealString(tokenStr.raw, mLineNow, tokenStr.col);
-            ProgramReader& pr = newInstance();
-            pr.open(fileName);
-            // pr.debugOutput(); // show  full text of the input program
-            // pr.debugParser(); // show  all tokens of the input program
-            // pr.debugBrace();
-            pr.compile();
-            clearInstance();
-            mLineNow ++;
+            compileImport(mLineNow);
         }else
         {
             ErrorReport::getInstance().send(
@@ -410,6 +447,8 @@ void ProgramReader::compile() {
             );
         }
     }
+    // the compile of this file is finished
+    sFileCompiled[mFileName] = true;
 }
 
 
@@ -891,7 +930,7 @@ void ProgramReader::compileFor(int lineFrom) {
     matchExpression();
     CodeMgr::getInstance().pushLocalVarValue(mFunctionName, offset);
     int step = 1, colTmp = 0;
-    if(getToken().type == TOKEN_BY) {
+    if(getToken().type == TOKEN_BY) { // the number after BY must be a constant 
         int negflag = 0;
         match(TOKEN_BY, "BY");
         if(getToken().type == TOKEN_SUB) {
