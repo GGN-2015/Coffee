@@ -1138,7 +1138,7 @@ get_new_var:
         CodeMgr::getInstance().getNotStackTop(mFunctionName);
         varCnt ++;
     }else
-    if(getToken().type == TOKEN_SUB) { // -1, -x, -arr[3], f()
+    if(getToken().type == TOKEN_SUB) { // -1, -x, -arr[3], -f(), -(expression)
         match(TOKEN_SUB, "-");
         if(getToken().type == TOKEN_NUMBER) {
             const Token& tokenNum = match(TOKEN_NUMBER, "NUMBER");
@@ -1148,6 +1148,13 @@ get_new_var:
         if(getToken().type == TOKEN_IDENTIFIER) {
             matchIdentifierExpression(varCnt);
             CodeMgr::getInstance().negStackTop(mFunctionName);
+        }else
+        if(getToken().type == TOKEN_OPEN) {
+            match(TOKEN_OPEN, "(");
+            matchExpression();
+            match(TOKEN_CLOSE, ")");
+            CodeMgr::getInstance().negStackTop(mFunctionName);
+            varCnt ++;
         }else
         {
             ErrorReport::getInstance().send(

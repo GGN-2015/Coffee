@@ -3,7 +3,7 @@
 
 
 #include <string>
-#include <vector> // Current implementation is pretty inefficient
+#include <vector> // Current implementation is inefficient
 #include <stack>
 
 

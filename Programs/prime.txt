@@ -1,20 +1,4 @@
-FUNC printInt(x)
-    VAR stk[10], stktop := 0
-    IF x = 0 THEN
-        PUTCHAR('0')
-    ELSE
-        WHILE x <> 0 LOOP
-            stk[stktop] := x % 10
-            x := x / 10
-            stktop := stktop + 1
-        ENDWHILE
-        WHILE stktop > 0 LOOP
-            PUTCHAR(stk[stktop - 1] + 48)
-            stktop := stktop - 1
-        ENDWHILE
-    ENDIF
-    PUTCHAR(' ')
-ENDFUNC
+IMPORT "import/io.txt"
 
 
 FUNC isprime(x)
@@ -31,9 +15,10 @@ ENDFUNC
 
 
 FUNC main()
-    FOR i := 1 TO 100 DO
+    FOR i := 1 TO 1000 DO
         IF isprime(i) THEN
             CALL printInt(i)
+            PUTCHAR(' ')
         ENDIF
     ENDFOR
 ENDFUNC

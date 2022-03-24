@@ -21,7 +21,7 @@
 
 int main(int argc, char** argv) {
     ErrorReport  & er = ErrorReport   :: getInstance();
-    ProgramReader& pr = ProgramReader :: getInstance();
+    ProgramReader& pr = ProgramReader :: getInstance(); // if there is no instance, auto create one
     VarMgr       & vm = VarMgr        :: getInstance();
     CodeMgr      & cm = CodeMgr       :: getInstance();
     if(argc <= 1) {

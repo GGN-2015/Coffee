@@ -31,10 +31,10 @@ void ErrorReport::send
     cerr << errorPrompt << endl;
     while(!ProgramReader::objStack.empty()) {
         if(line != -1) {
-            fprintf(stderr, " FILE       | %s\n", ProgramReader::getInstance().getFileName().c_str());
-            fprintf(stderr, " LINE %5d | ", line);
+            fprintf(stderr, "    FILE       | %s\n", ProgramReader::getInstance().getFileName().c_str());
+            fprintf(stderr, "    LINE %5d | ", line);
             cerr << ProgramReader::getInstance().getLine(line) << endl;
-            fprintf(stderr, "  COL %5d | ", col);
+            fprintf(stderr, "  COLUMN %5d | ", col);
             while(col --) {
                 cerr << " ";
             }
