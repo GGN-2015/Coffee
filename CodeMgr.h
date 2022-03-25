@@ -8,7 +8,6 @@
 
 
 #define MEMORY_WORD_MAX     (32 * 1024) // max memory word count
-#define CODE_OPTIMIZE_GRADE (0)         // code optimize grade 
 
 
 class CodeMgr
@@ -79,11 +78,14 @@ public:
     void memset(std::string mFunctionName, int value);
     
     void outputCode(int stackSegmentSizeWord = 1024);
+    void setOptimizeGrade(int newGrade);
     
 protected:
+    int CODE_OPTIMIZE_GRADE;
+    
     std::vector<std::string>& getFuncCode(std::string funcName);
     
-    CodeMgr() {stackSegmentLengthWord = 0;}
+    CodeMgr() {stackSegmentLengthWord = 0; CODE_OPTIMIZE_GRADE=1;}
     
     std::map<std::string, std::vector<std::string> > mFuncCode;
     

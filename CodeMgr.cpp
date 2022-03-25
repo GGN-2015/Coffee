@@ -586,3 +586,7 @@ void CodeMgr::memset(std::string funcName, int value) {
     appendFunc(funcName, "    LOOP " + jumpName);
 }
 
+
+void CodeMgr::setOptimizeGrade(int newGrade) {
+    CODE_OPTIMIZE_GRADE = newGrade;
+}
