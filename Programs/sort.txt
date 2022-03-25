@@ -1,4 +1,4 @@
-IMPORT "import/io.txt"
+IMPORT "import/conio.txt"
 
 
 VAR arr[100]                ; 储存被排序的数组

@@ -1,4 +1,4 @@
-IMPORT "import/io.txt"
+IMPORT "import/conio.txt"
 
 
 FUNC main()

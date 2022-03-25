@@ -229,7 +229,8 @@ bool Utils::checkHex(char *hexChar) {
 
 
 std::string Utils::getOpe(std::string ope) {
-    char tmp[256];
+    ope = deleteRem(ope);
+    char tmp[256] = {};
     sscanf(ope.c_str(), "%s", tmp);
     std::string ans = tmp;
     std::transform(ans.begin(), ans.end(), ans.begin(), ::toupper);
@@ -241,6 +242,7 @@ std::string Utils::getRegSource(std::string instruction) {
     char tmp[256];
     // sscanf(instruction.c_str(), "%*s%s", tmp);
     // std::string ans = tmp;
+    instruction = deleteRem(instruction);
     std::stringstream ss; ss << instruction;
     ss >> tmp;
     std::string ans;
@@ -262,4 +264,13 @@ std::string Utils::strip(std::string str) {  // delete the empty char
         str = str.substr(0, str.length() - 1);
     }
     return str;
+}
+
+
+std::string Utils::deleteRem(std::string instruction) {
+    int semipos = instruction.find(";");
+    if(semipos != -1) {
+        instruction = instruction.substr(0, semipos);
+    }
+    return instruction;
 }

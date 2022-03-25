@@ -19,6 +19,7 @@ public:
     static std::string getRealString(std::string raw, int line, int col);
     static char getTransChar(char ch, int& flag);
     static std::string fillStrTo(std::string strNow, int length);
+    static std::string deleteRem(std::string instruction);
     static std::string getOpe(std::string instruction);
     static std::string getRegSource(std::string instruction);
     static std::string strip(std::string str);

@@ -1,41 +1,6 @@
 VAR compact_buffer[129]
 
 
-FUNC printInt(x)
-    VAR stk[10], stktop
-    stktop := 0
-    IF x = 0 THEN
-        PUTCHAR('0')
-    ELSE
-        WHILE x <> 0 LOOP
-            stk[stktop] := x % 10
-            x := x / 10
-            stktop := stktop + 1
-        ENDWHILE
-        WHILE stktop > 0 LOOP
-            PUTCHAR(stk[stktop - 1] + 48)
-            stktop := stktop - 1
-        ENDWHILE
-    ENDIF
-    PUTCHAR(' ')
-ENDFUNC
-
-
-;FUNC compact(pArr)  ; use this function to load string into compact mode
-;    VAR length      ; especially for inner ASM
-;    FOR i := 0 TO 128 DO
-;        IF i % 2 = 0 THEN
-;            compact_buffer[i / 2] := VARAT(pArr + 2 * i)
-;        ELSE
-;            compact_buffer[i / 2] := compact_buffer[i / 2] + VARAT(pArr + 2 * i) * 256
-;        ENDIF
-;        IF VARAT(pArr + 2 * i) = 0 THEN
-;            BREAK
-;        ENDIF
-;    ENDFOR
-;ENDFUNC
-
-
 FUNC compact(pArr)          ; use this function to load string into compact mode
     ASM("MOV SI, [BP-2]")   ; especially for inner ASM
     ASM("LEA DI, GLOBAL_compact_buffer")
