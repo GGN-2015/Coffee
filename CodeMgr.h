@@ -7,7 +7,8 @@
 #include <map>
 
 
-#define MEMORY_WORD_MAX (32 * 1024)
+#define MEMORY_WORD_MAX     (32 * 1024) // max memory word count
+#define CODE_OPTIMIZE_GRADE (0)         // code optimize grade 
 
 
 class CodeMgr
@@ -80,11 +81,11 @@ public:
     void outputCode(int stackSegmentSizeWord = 1024);
     
 protected:
-    std::string& getFuncCode(std::string funcName);
+    std::vector<std::string>& getFuncCode(std::string funcName);
     
     CodeMgr() {stackSegmentLengthWord = 0;}
     
-    std::map<std::string, std::string> mFuncCode;
+    std::map<std::string, std::vector<std::string> > mFuncCode;
     
     std::string stackSegment;
     int stackSegmentLengthWord;

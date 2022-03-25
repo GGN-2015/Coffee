@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <cstdio>
+#include <sstream>
 
 
 #include "ErrorReport.h"
@@ -223,4 +225,41 @@ bool Utils::checkHex(char *hexChar) {
         }
     }
     return true;
+}
+
+
+std::string Utils::getOpe(std::string ope) {
+    char tmp[256];
+    sscanf(ope.c_str(), "%s", tmp);
+    std::string ans = tmp;
+    std::transform(ans.begin(), ans.end(), ans.begin(), ::toupper);
+    return Utils::strip(ans);
+}
+
+
+std::string Utils::getRegSource(std::string instruction) {
+    char tmp[256];
+    // sscanf(instruction.c_str(), "%*s%s", tmp);
+    // std::string ans = tmp;
+    std::stringstream ss; ss << instruction;
+    ss >> tmp;
+    std::string ans;
+    std::getline(ss, ans, '\n');
+    std::transform(ans.begin(), ans.end(), ans.begin(), ::toupper);
+    int commaPos = ans.find(",");
+    if(commaPos != -1) {
+        ans = ans.substr(0, commaPos);
+    }
+    return Utils::strip(ans);
+}
+
+
+std::string Utils::strip(std::string str) {  // delete the empty char
+    while(str.size() > 0 && str[0] == ' ') {
+        str = str.substr(1);
+    }
+    while(str.size() > 0 && str[str.length() - 1] == ' ') {
+        str = str.substr(0, str.length() - 1);
+    }
+    return str;
 }

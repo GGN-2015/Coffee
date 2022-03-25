@@ -14,19 +14,49 @@ CodeMgr& CodeMgr::getInstance() {
 
 
 void CodeMgr::clearFunc(std::string funcName) { // clear and create
-    mFuncCode[funcName] = "";
+    mFuncCode[funcName] = {};
 }
 
 
 void CodeMgr::appendFunc(std::string funcName, std::string codeStr) {
     checkFuncExist(funcName);
-    getFuncCode(funcName) += codeStr + "\n";
+    std::vector<std::string> &funcCodeVec = getFuncCode(funcName);
+    std::string newLineCode = codeStr + "\n";
+    // here we need an optimize algorithm
+    if(CODE_OPTIMIZE_GRADE >= 1) {
+        if(funcCodeVec.size() >= 1) {
+            int len = funcCodeVec.size();
+            std::string lastOpe = Utils::getOpe(funcCodeVec[len - 1]);
+            std::string nextOpe = Utils::getOpe(newLineCode);
+            if(lastOpe == "PUSH" && nextOpe == "POP") {
+                std::string rs1 = Utils::getRegSource(funcCodeVec[len - 1]);
+                std::string rs2 = Utils::getRegSource(newLineCode);
+                funcCodeVec.pop_back();
+                if(rs1 != rs2) {
+                    funcCodeVec.push_back("    MOV " + rs2 + ", " + rs1 + " ; optimized grade 1\n");
+                }else {
+                    // if(rs1 == rs2) {
+                    //     MOV A, A is meaningless; // remember to delete lastOpe
+                    // }
+                }
+            }else {
+                // just optimize PUSH A; POP B; into => MOV B, A
+                funcCodeVec.push_back(newLineCode);
+            }
+        }else {
+            // the first line of the function do not optimize
+            funcCodeVec.push_back(newLineCode);
+        }
+    }else {
+        // CODE_OPTIMIZE_GRADE = 0, do not optimize the stack operation
+        funcCodeVec.push_back(newLineCode);
+    }
 }
 
 
 void CodeMgr::appendFuncAsm(std::string funcName, std::string codeStr) {
     checkFuncExist(funcName);
-    getFuncCode(funcName) += "    " + Utils::fillStrTo(codeStr, 30) + "; code from inner asm\n";
+    getFuncCode(funcName).push_back("    " + Utils::fillStrTo(codeStr, 30) + "; code from inner asm\n");
 }
 
 
@@ -213,7 +243,10 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
             printf("    MOV AX, [BP+%d]\n", 2 + 2 * i);
             printf("    MOV [BP-%d], AX\n", 2 * i);
         }
-        printf("%s", funcString.second.c_str());
+        // printf("%s", funcString.second.c_str());
+        for(auto& funcLine: funcString.second) {
+            printf("%s", funcLine.c_str());
+        }
         printf("ENDFUNC_%s:\n", funcString.first.c_str());
         printf("    ADD SP, %d\n", 2 * localVarCnt); // destroy local VARs
         printf("    POP BP\n");
@@ -492,9 +525,9 @@ void CodeMgr::PopToVarAt(std::string funcName) {
 }
 
 
-std::string& CodeMgr::getFuncCode(std::string funcName) { // speed up search
+std::vector<std::string>& CodeMgr::getFuncCode(std::string funcName) { // speed up search
     static std::string  lastCallFuncName = "";
-    static std::string* lastCallStringPos = nullptr;
+    static std::vector<std::string>* lastCallStringPos = nullptr;
     if(lastCallStringPos == nullptr || lastCallFuncName != funcName) {
         lastCallFuncName = funcName;
         lastCallStringPos = &mFuncCode[funcName];
