@@ -178,19 +178,31 @@ void CodeMgr::mulStackTop(std::string funcName) {
 
 
 void CodeMgr::divStackTop(std::string funcName) {
+    int jumpId = ++ jumpCnt;
+    std::string jumpName = "JUMP_" + std::to_string(jumpId);
     appendFunc(funcName, "    POP BX");
     appendFunc(funcName, "    POP AX");
     appendFunc(funcName, "    MOV DX, 0");
-    appendFunc(funcName, "    DIV BX");
+    appendFunc(funcName, "    CMP AX, 0");
+    appendFunc(funcName, "    JGE " + jumpName);
+    appendFunc(funcName, "    MOV DX, 0FFFFH");
+    appendFunc(funcName, jumpName + ":");
+    appendFunc(funcName, "    IDIV BX");
     appendFunc(funcName, "    PUSH AX");
 }
 
 
 void CodeMgr::modStackTop(std::string funcName) {
+    int jumpId = ++ jumpCnt;
+    std::string jumpName = "JUMP_" + std::to_string(jumpId);
     appendFunc(funcName, "    POP BX");
     appendFunc(funcName, "    POP AX");
     appendFunc(funcName, "    MOV DX, 0");
-    appendFunc(funcName, "    DIV BX");
+    appendFunc(funcName, "    CMP AX, 0");
+    appendFunc(funcName, "    JGE " + jumpName);
+    appendFunc(funcName, "    MOV DX, 0FFFFH");
+    appendFunc(funcName, jumpName + ":");
+    appendFunc(funcName, "    IDIV BX");
     appendFunc(funcName, "    PUSH DX");
 }
 

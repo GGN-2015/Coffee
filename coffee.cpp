@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         cm.outputCode(stackSize);
         // vm.debugShow();
         if(DEBUG_MODE) {
-            std::cerr << "---------STATUS: " << "FINISHED"   << std::endl;
+            std::cerr << "---------STATUS: " << "FINISHED" << std::endl;
             std::cerr << std::endl;
         }
     }

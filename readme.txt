@@ -26,8 +26,8 @@
 // 1. Define a function
 //   FUNC funcName ( argName1, argName2, ... )
 //       ...
-//       [RETURN]
-//       [RETURN expression]         ;ALL function without RETURN statements will return ZERO
+//       [RETURN]                    ;function with RETURN but no expression return ZERO
+//       [RETURN expression]         ;ALL function without RETURN statements will return AX
 //   ENDFUNC
 // 
 // 2. Define a variable 
