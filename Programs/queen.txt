@@ -1,4 +1,4 @@
-IMPORT "import/conio.txt"
+IMPORT "import/stdio.txt"
 
 
 VAR col[9], add[16], sub[16] ; 记录哪些行，哪些列有皇后

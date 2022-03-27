@@ -1,5 +1,6 @@
 #include "CodeMgr.h"
 #include "ErrorReport.h"
+#include "FuncGraph.h"
 #include "Utils.h"
 #include "VarMgr.h"
 
@@ -207,19 +208,22 @@ void CodeMgr::modStackTop(std::string funcName) {
 }
 
 
+#define ENTRANCE_FUNC_NAME std::string("main")
+
+
 void CodeMgr::outputCode(int stackSegmentSizeWord) {
-    if(mFuncCode.count("main") == 0) {
+    if(mFuncCode.count(ENTRANCE_FUNC_NAME) == 0) {
         ErrorReport::getInstance().send(
             true,
             "Entry Error",
-            "Can not found the function 'main'"
+            "Can not found the function " + ENTRANCE_FUNC_NAME
         );
     }
-    if(VarMgr::getInstance().getFuncArguCnt("main") != 0) {
+    if(VarMgr::getInstance().getFuncArguCnt(ENTRANCE_FUNC_NAME) != 0) {
         ErrorReport::getInstance().send(
             true,
             "Entry Error",
-            "function 'main' can not have arguments"
+            "function " + ENTRANCE_FUNC_NAME + " can not have arguments"
         );
     }
     if(stackSegmentSizeWord - stackSegmentLengthWord < 0) {
@@ -237,6 +241,8 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
             "stack segment size must be under " + std::to_string(MEMORY_WORD_MAX) + " words"
         );
     }
+    FuncGraph::getInstance().searchAll(ENTRANCE_FUNC_NAME); // do not compile the function not reached
+    
     printf("STACKSG SEGMENT STACK\n");
     printf("%s", stackSegment.c_str());
     printf("    DW %d DUP(0)\n", stackSegmentSizeWord - stackSegmentLengthWord);
@@ -244,6 +250,10 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
     printf("CODESG SEGMENT\n");
     printf("    ASSUME CS:CODESG, DS:STACKSG, SS:STACKSG\n\n");
     for(auto& funcString: mFuncCode) {
+        if(CODE_OPTIMIZE_GRADE >=1 && 
+            !FuncGraph::getInstance().checkFuncVisited(funcString.first)) {
+            continue; // do not compile function that has not been used
+        }
         int localVarCnt = VarMgr::getInstance().getFuncLocalVarCnt(funcString.first);
         int arguCnt = VarMgr::getInstance().getFuncArguCnt(funcString.first);
         printf("FUNC_%s: ; localVar: %5d, arguCnt: %5d\n", 
@@ -269,7 +279,7 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
     printf("    MOV DS, AX\n");
     printf("    MOV SS, AX\n"); // stack segment and data segment are the same
     printf("    MOV SP, %d\n", stackSegmentSizeWord * 2);
-    printf("    CALL FUNC_main\n");
+    printf(("    CALL FUNC_" + ENTRANCE_FUNC_NAME + "\n").c_str());
     printf("    MOV AH, 4CH\n");
     printf("    INT 21H\n");
     printf("CODESG ENDS\n");

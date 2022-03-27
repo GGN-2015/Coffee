@@ -5,6 +5,7 @@
 
 #include "CodeMgr.h"
 #include "ErrorReport.h"
+#include "FuncGraph.h"
 #include "KeywordMap.h"
 #include "ProgramReader.h"
 #include "Parser.h"
@@ -628,8 +629,9 @@ void ProgramReader::compileFunction(int lineFrom) {
     mFunctionName = funcIden -> raw;
     VarMgr::getInstance().addFunc(
         mFunctionName, lineFrom, funcIden -> col);                  // add function into list
-        
+    FuncGraph::getInstance().addNewFunc(mFunctionName);             // add function into funcGraph
     CodeMgr::getInstance().clearFunc(mFunctionName);                // clear do not check name twice
+    
     match(TOKEN_OPEN, "(");
     int arguCnt = 0;
     if(getToken().type != TOKEN_CLOSE) {
@@ -841,6 +843,8 @@ void ProgramReader::compileCall(int lineFrom) {
             tokenFunc.col
         );
     }
+    FuncGraph::getInstance().addEdge(mFunctionName, tokenFunc.raw); // add edge between functions
+    
     int arguCnt = VarMgr::getInstance().getFuncArguCnt(tokenFunc.raw);
     int nowCnt = 0;
     match(TOKEN_OPEN, "(");
@@ -1072,6 +1076,8 @@ void ProgramReader::compileLine(int lineFrom) { // total eight form
 void ProgramReader::matchIdentifierExpression(int& varCnt) {
     if(VarMgr::getInstance().existFunc(getToken().raw)) { // this is a function
         const Token& tokenFunc = getToken(); nextToken();
+        FuncGraph::getInstance().addEdge(mFunctionName, tokenFunc.raw); // add edge between functions
+        
         int arguCnt = VarMgr::getInstance().getFuncArguCnt(tokenFunc.raw);
         int nowCnt = 0;
         match(TOKEN_OPEN, "(");
