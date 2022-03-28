@@ -238,7 +238,7 @@ std::string Utils::getOpe(std::string ope) {
 }
 
 
-std::string Utils::getRegSource(std::string instruction) {
+std::string Utils::getReg1(std::string instruction) {
     char tmp[256];
     // sscanf(instruction.c_str(), "%*s%s", tmp);
     // std::string ans = tmp;
@@ -274,3 +274,17 @@ std::string Utils::deleteRem(std::string instruction) {
     }
     return instruction;
 }
+
+
+bool Utils::isJmpFlag(std::string ins) {
+    ins = deleteRem(ins);
+    return ins.find(":") != -1; // "FLAG_XXX:" is regarded as flag
+}
+
+
+bool Utils::checkAffect(std::string ins, std::string dst) {
+    ins = deleteRem(ins);
+    return ins.find(dst) != -1;
+
+}
+

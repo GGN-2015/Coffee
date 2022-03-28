@@ -6,6 +6,7 @@
 
 
 static int jumpCnt = 0;
+#define OPTIMIZED_BY_O1 std::string(";optimized by O1\n")
 
 
 CodeMgr& CodeMgr::getInstance() {
@@ -19,39 +20,54 @@ void CodeMgr::clearFunc(std::string funcName) { // clear and create
 }
 
 
+bool CodeMgr::optimize1LastLine(std::string funcName) {
+    std::vector<std::string> &funcCodeVec = getFuncCode(funcName);
+    int lineNow = funcCodeVec.size() - 1;
+    if(Utils::isJmpFlag(funcCodeVec[lineNow])) {
+        return false; // do not optimize JMP flag
+    }
+    std::string ope = Utils::getOpe(funcCodeVec[lineNow]);
+    std::string dst = Utils::getReg1(funcCodeVec[lineNow]);
+    if(ope != "POP") {
+        return false; // O(1) only optimize PUSH - POP
+    }
+    int lastPush = lineNow - 1;
+    while(lastPush > 0) {
+        if(Utils::isJmpFlag(funcCodeVec[lastPush])) {
+            return false; // can not optimize PUSH out of function but pop in the function
+        }
+        std::string opeFrom = Utils::getOpe(funcCodeVec[lastPush]);
+        if(opeFrom == "PUSH") {
+            break; // this line is the last PUSH that we find
+        }
+        if(Utils::checkAffect(funcCodeVec[lastPush], dst)) {
+            return false; // can not optimize when affected
+        }
+        lastPush --;
+    }
+    if(lastPush < 0) return false; // can not find last PUSH
+    std::string opeFrom = Utils::getOpe(funcCodeVec[lastPush]);
+    std::string src     = Utils::getReg1(funcCodeVec[lastPush]);
+    funcCodeVec.erase(funcCodeVec.end() - 1); // delete last statement
+    if(src == dst) {
+        funcCodeVec[lastPush] = OPTIMIZED_BY_O1;
+    }else {
+        funcCodeVec[lastPush] = "    MOV " + dst + ", " + src + " " + OPTIMIZED_BY_O1;
+    }
+    return true;
+}
+
+
 void CodeMgr::appendFunc(std::string funcName, std::string codeStr) {
     checkFuncExist(funcName);
     std::vector<std::string> &funcCodeVec = getFuncCode(funcName);
     std::string newLineCode = codeStr + "\n";
-    // here we need an optimize algorithm
-    if(CODE_OPTIMIZE_GRADE >= 1) {
-        if(funcCodeVec.size() >= 1) {
-            int len = funcCodeVec.size();
-            std::string lastOpe = Utils::getOpe(funcCodeVec[len - 1]);
-            std::string nextOpe = Utils::getOpe(newLineCode);
-            if(lastOpe == "PUSH" && nextOpe == "POP") {
-                std::string rs1 = Utils::getRegSource(funcCodeVec[len - 1]);
-                std::string rs2 = Utils::getRegSource(newLineCode);
-                funcCodeVec.pop_back();
-                if(rs1 != rs2) {
-                    funcCodeVec.push_back("    MOV " + rs2 + ", " + rs1 + " ; optimized grade 1\n");
-                }else {
-                    // if(rs1 == rs2) {
-                    //     MOV A, A is meaningless; // remember to delete lastOpe
-                    // }
-                }
-            }else {
-                // just optimize PUSH A; POP B; into => MOV B, A
-                funcCodeVec.push_back(newLineCode);
-            }
-        }else {
-            // the first line of the function do not optimize
-            funcCodeVec.push_back(newLineCode);
-        }
-    }else {
-        // CODE_OPTIMIZE_GRADE = 0, do not optimize the stack operation
-        funcCodeVec.push_back(newLineCode);
-    }
+    funcCodeVec.push_back(newLineCode);
+    
+    // ------------------------------------------------------------ //
+    if(CODE_OPTIMIZE_GRADE >= 1)
+        while(optimize1LastLine(funcName)); // while ok to optimize last line, optimize
+    // ------------------------------------------------------------ //
 }
 
 
@@ -250,8 +266,7 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
     printf("CODESG SEGMENT\n");
     printf("    ASSUME CS:CODESG, DS:STACKSG, SS:STACKSG\n\n");
     for(auto& funcString: mFuncCode) {
-        if(CODE_OPTIMIZE_GRADE >=1 && 
-            !FuncGraph::getInstance().checkFuncVisited(funcString.first)) {
+        if(!FuncGraph::getInstance().checkFuncVisited(funcString.first)) {
             continue; // do not compile function that has not been used
         }
         int localVarCnt = VarMgr::getInstance().getFuncLocalVarCnt(funcString.first);
@@ -267,6 +282,7 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
         }
         // printf("%s", funcString.second.c_str());
         for(auto& funcLine: funcString.second) {
+            if(funcLine == OPTIMIZED_BY_O1) continue; // JUMP optimized line
             printf("%s", funcLine.c_str());
         }
         printf("ENDFUNC_%s:\n", funcString.first.c_str());

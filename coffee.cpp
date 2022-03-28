@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <ctime>
 
 
 #include "CodeMgr.h"
@@ -63,15 +64,23 @@ int main(int argc, char** argv) {
             std::cerr << "-------FILENAME: " << fileName   << std::endl;
             std::cerr << std::endl;
         }
+        int beginTime = clock();
+        
+        // ------------------------------------------------------------ //
         pr.open(fileName);
         // pr.debugOutput(); // show  full text of the input program
         // pr.debugParser(); // show  all tokens of the input program
         // pr.debugBrace();
         pr.compile();
         cm.outputCode(stackSize);
+        // ------------------------------------------------------------ //
+        
+        int endTime = clock();
         // vm.debugShow();
         if(DEBUG_MODE) {
             std::cerr << "---------STATUS: " << "FINISHED" << std::endl;
+            std::cerr << "------COST TIME: " << 1.0 * (endTime - beginTime) / CLOCKS_PER_SEC 
+                << "s" << std::endl;
             std::cerr << std::endl;
         }
     }

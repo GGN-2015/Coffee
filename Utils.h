@@ -21,8 +21,10 @@ public:
     static std::string fillStrTo(std::string strNow, int length);
     static std::string deleteRem(std::string instruction);
     static std::string getOpe(std::string instruction);
-    static std::string getRegSource(std::string instruction);
+    static std::string getReg1(std::string instruction);
     static std::string strip(std::string str);
+    static bool isJmpFlag(std::string ins);
+    static bool checkAffect(std::string ins, std::string dst);
     
     static bool isOpenType(int type);
     static bool isCloseType(int type);
