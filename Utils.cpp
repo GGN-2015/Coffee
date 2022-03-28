@@ -256,6 +256,17 @@ std::string Utils::getReg1(std::string instruction) {
 }
 
 
+std::string Utils::getReg2(std::string ins) {
+    ins = deleteRem(ins);
+    int pos = ins.find(",");
+    if(pos == -1) {
+        return ""; // there is no reg2
+    }
+    std::string reg2 = ins.substr(pos + 1);
+    return strip(reg2);
+}
+
+
 std::string Utils::strip(std::string str) {  // delete the empty char
     while(str.size() > 0 && str[0] == ' ') {
         str = str.substr(1);

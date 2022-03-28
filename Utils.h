@@ -22,6 +22,7 @@ public:
     static std::string deleteRem(std::string instruction);
     static std::string getOpe(std::string instruction);
     static std::string getReg1(std::string instruction);
+    static std::string getReg2(std::string instruction);
     static std::string strip(std::string str);
     static bool isJmpFlag(std::string ins);
     static bool checkAffect(std::string ins, std::string dst);

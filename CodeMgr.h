@@ -84,6 +84,9 @@ protected:
     int CODE_OPTIMIZE_GRADE;
     
     bool optimize1LastLine(std::string funcName);
+    bool optimizePushPop  (std::string funcName);
+    bool optimizeMovBxAx  (std::string funcName);
+    
     std::vector<std::string>& getFuncCode(std::string funcName);
     CodeMgr() {stackSegmentLengthWord = 0; CODE_OPTIMIZE_GRADE=1;}
     

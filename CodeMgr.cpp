@@ -20,7 +20,7 @@ void CodeMgr::clearFunc(std::string funcName) { // clear and create
 }
 
 
-bool CodeMgr::optimize1LastLine(std::string funcName) {
+bool CodeMgr::optimizePushPop(std::string funcName) {
     std::vector<std::string> &funcCodeVec = getFuncCode(funcName);
     int lineNow = funcCodeVec.size() - 1;
     if(Utils::isJmpFlag(funcCodeVec[lineNow])) {
@@ -29,7 +29,7 @@ bool CodeMgr::optimize1LastLine(std::string funcName) {
     std::string ope = Utils::getOpe(funcCodeVec[lineNow]);
     std::string dst = Utils::getReg1(funcCodeVec[lineNow]);
     if(ope != "POP") {
-        return false; // O(1) only optimize PUSH - POP
+        return false; // optimizePushPop only optimize PUSH - POP
     }
     int lastPush = lineNow - 1;
     while(lastPush > 0) {
@@ -55,6 +55,38 @@ bool CodeMgr::optimize1LastLine(std::string funcName) {
         funcCodeVec[lastPush] = "    MOV " + dst + ", " + src + " " + OPTIMIZED_BY_O1;
     }
     return true;
+}
+
+
+bool CodeMgr::optimizeMovBxAx(std::string funcName) {
+    std::vector<std::string> &funcCodeVec = getFuncCode(funcName);
+    int lineNow = funcCodeVec.size() - 1;
+    if(Utils::isJmpFlag(funcCodeVec[lineNow])) {
+        return false; // do not optimize JMP flag
+    }
+    if(lineNow == 0) return false;
+    std::string opeMv1 = Utils::getOpe (funcCodeVec[lineNow]);
+    std::string dstBx  = Utils::getReg1(funcCodeVec[lineNow]);
+    std::string srcAx  = Utils::getReg2(funcCodeVec[lineNow]);
+    if(opeMv1 != "MOV" || dstBx != "BX" || srcAx != "AX") {
+        return false; // optimizePushPop only optimize PUSH - POP
+    }
+    std::string opeMv2 = Utils::getOpe (funcCodeVec[lineNow - 1]);
+    std::string dstAx  = Utils::getReg1(funcCodeVec[lineNow - 1]);
+    std::string srcCn  = Utils::getReg2(funcCodeVec[lineNow - 1]);
+    if(opeMv2 != "MOV" || dstAx != "AX") {
+        return false; // optimizePushPop only optimize PUSH - POP
+    }
+    funcCodeVec.erase(funcCodeVec.end()-1);
+    funcCodeVec[lineNow - 1] = "MOV " + dstBx + ", " + srcCn + " " + OPTIMIZED_BY_O1;
+    return true;
+}
+
+
+bool CodeMgr::optimize1LastLine(std::string funcName) {
+    bool ans1 = optimizePushPop(funcName);
+    bool ans2 = optimizeMovBxAx(funcName);
+    return ans1 || ans2;
 }
 
 
@@ -628,3 +660,4 @@ void CodeMgr::memset(std::string funcName, int value) {
 void CodeMgr::setOptimizeGrade(int newGrade) {
     CODE_OPTIMIZE_GRADE = newGrade;
 }
+
