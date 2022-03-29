@@ -25,7 +25,7 @@ public:
     static std::string getReg2(std::string instruction);
     static std::string strip(std::string str);
     static bool isJmpFlag(std::string ins);
-    static bool checkAffect(std::string ins, std::string dst);
+    static bool checkAffectReg(std::string ins, std::string dst);
     static bool isReg16Name(std::string regName);
     
     static bool isOpenType(int type);

@@ -33,7 +33,7 @@ WHILE_2:
     PUSH WORD PTR [BP-2]
     MOV AX, 2
     MOV BX, WORD PTR [BP-4] ;optimized by O1
-    MUL BX
+    IMUL BX
     MOV BX, AX ;optimized by O1
     POP AX
     ADD AX, BX
@@ -53,7 +53,7 @@ JUMP_13:
     PUSH WORD PTR [BP-2]
     MOV AX, 2
     MOV BX, WORD PTR [BP-4] ;optimized by O1
-    MUL BX
+    IMUL BX
     MOV BX, AX ;optimized by O1
     POP AX
     ADD AX, BX

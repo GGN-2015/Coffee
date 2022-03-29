@@ -33,14 +33,17 @@ bool CodeMgr::optimizePushPop(std::string funcName) {
     }
     int lastPush = lineNow - 1;
     while(lastPush > 0) {
-        if(Utils::isJmpFlag(funcCodeVec[lastPush]) || Utils::getOpe(funcCodeVec[lastPush]) == "CALL") {
+        if(Utils::isJmpFlag(funcCodeVec[lastPush]) || 
+            Utils::getOpe(funcCodeVec[lastPush]) == "CALL" ||
+            Utils::getOpe(funcCodeVec[lastPush])[0] == 'J'
+        ) {
             return false; // can not optimize PUSH out of function but pop in the function
         }
         std::string opeFrom = Utils::getOpe(funcCodeVec[lastPush]);
         if(opeFrom == "PUSH") {
             break; // this line is the last PUSH that we find
         }
-        if(Utils::checkAffect(funcCodeVec[lastPush], dst)) {
+        if(Utils::checkAffectReg(funcCodeVec[lastPush], dst)) {
             return false; // can not optimize when affected
         }
         lastPush --;
@@ -222,7 +225,7 @@ void CodeMgr::subStackTop(std::string funcName) {
 void CodeMgr::mulStackTop(std::string funcName) {
     appendFunc(funcName, "    POP BX");
     appendFunc(funcName, "    POP AX");
-    appendFunc(funcName, "    MUL BX");
+    appendFunc(funcName, "    IMUL BX");
     appendFunc(funcName, "    PUSH AX");
 }
 

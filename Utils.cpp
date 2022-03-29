@@ -293,10 +293,27 @@ bool Utils::isJmpFlag(std::string ins) {
 }
 
 
-bool Utils::checkAffect(std::string ins, std::string dst) {
+bool Utils::checkAffectReg(std::string ins, std::string reg) {
+    std::string ope = getOpe(ins);
+    if(ope == "PUSH") {
+        if(reg == "SP") {
+            return true;
+        }else {
+            return false; // push does not change the value of any reg except sp
+        }
+    }
     ins = deleteRem(ins);
-    return ins.find(dst) != -1;
-
+    bool part = getReg1(ins) == reg;
+    if(part) return true;
+    if(ope == "DIV" || ope == "IDIV" || ope == "MUL" || ope == "IMUL") {
+        if(reg == "AX" || reg == "DX") {
+            return true;
+        }else {
+            return false;
+        }
+    }else {
+        return false;
+    }
 }
 
 

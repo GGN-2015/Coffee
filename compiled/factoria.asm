@@ -36,7 +36,7 @@ ELSE_9:
     CALL FUNC_fact
     ADD SP, 2
     MOV BX, WORD PTR [BP-2] ;optimized by O1
-    MUL BX
+    IMUL BX
     JMP ENDFUNC_fact
 ENDIF_9:
 ENDFUNC_fact:

@@ -19,13 +19,14 @@ FUNC_main: ; localVar:     1, arguCnt:     0
     ADD AX, BX
     NEG AX
     PUSH AX
-    MOV AX, 5
-    MOV BX, 6 ;optimized by O1
+    MOV AX, 9
+    MOV BX, -6 ;optimized by O1
     ADD AX, BX
-    NEG AX
     MOV BX, AX ;optimized by O1
     POP AX
-    ADD AX, BX
+    IMUL BX
+    MOV BX, 60 ;optimized by O1
+    SUB AX, BX
     MOV [BP-2], AX
     PUSH WORD PTR [BP-2]
     CALL FUNC_printInt

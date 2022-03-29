@@ -96,7 +96,7 @@ JUMP_5:
     ADD BX, AX
     MOV AX, WORD PTR [BX] ;optimized by O1
     MOV BX, WORD PTR [BP-204] ;optimized by O1
-    MUL BX
+    IMUL BX
     MOV CX, AX ;optimized by O1
     POP BX
     POP AX

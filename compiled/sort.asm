@@ -131,7 +131,7 @@ JUMP_23:
 JUMP_24:
     MOV AX, WORD PTR [BP-4] ;optimized by O1
     MOV BX, 10 ;optimized by O1
-    MUL BX
+    IMUL BX
     PUSH AX
     MOV AX, 0
     MOV BX, WORD PTR [BP-2] ;optimized by O1
@@ -699,7 +699,7 @@ WHILE_2:
     PUSH WORD PTR [BP-2]
     MOV AX, 2
     MOV BX, WORD PTR [BP-4] ;optimized by O1
-    MUL BX
+    IMUL BX
     MOV BX, AX ;optimized by O1
     POP AX
     ADD AX, BX
@@ -719,7 +719,7 @@ JUMP_13:
     PUSH WORD PTR [BP-2]
     MOV AX, 2
     MOV BX, WORD PTR [BP-4] ;optimized by O1
-    MUL BX
+    IMUL BX
     MOV BX, AX ;optimized by O1
     POP AX
     ADD AX, BX
