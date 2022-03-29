@@ -38,8 +38,7 @@ JUMP_44:
     MOV AX, WORD PTR [BP-2] ;optimized by O1
     MOV BX, WORD PTR [BP-4] ;optimized by O1
     ADD AX, BX
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     SUB AX, BX
     MOV BX, AX ;optimized by O1
     POP AX
@@ -68,8 +67,7 @@ JUMP_47:
     MOV AX, WORD PTR [BP-2] ;optimized by O1
     MOV BX, WORD PTR [BP-4] ;optimized by O1
     SUB AX, BX
-MOV BX, 8
- ;optimized by O1
+    MOV BX, 8 ;optimized by O1
     ADD AX, BX
     MOV BX, AX ;optimized by O1
     POP AX
@@ -105,8 +103,7 @@ FUNC_dfs: ; localVar:     2, arguCnt:     1
     MOV AX, [BP+4]
     MOV [BP-2], AX
     MOV AX, WORD PTR [BP-2] ;optimized by O1
-MOV BX, 9
- ;optimized by O1
+    MOV BX, 9 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JGE JUMP_51
@@ -119,8 +116,7 @@ JUMP_51:
 JUMP_52:
     MOV SI, 674
     MOV AX, WORD PTR [SI] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     ADD AX, BX
     MOV SI, 674
     MOV [SI], AX
@@ -166,8 +162,7 @@ JUMP_55:
     CALL FUNC_setQueen
     ADD SP, 6
     MOV AX, WORD PTR [BP-2] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     ADD AX, BX
     PUSH AX
     CALL FUNC_dfs
@@ -185,8 +180,7 @@ MOV BX, 1
     ADD SP, 6
 ENDIF_12:
     MOV AX, WORD PTR [BP-4] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     ADD AX, BX
     MOV [BP-4], AX
     JMP WHILE_9
@@ -223,8 +217,7 @@ FUNC_printInt: ; localVar:    12, arguCnt:     1
     MOV AX, 0
     MOV [BP-24], AX
     MOV AX, WORD PTR [BP-2] ;optimized by O1
-MOV BX, 0
- ;optimized by O1
+    MOV BX, 0 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JL JUMP_26
@@ -238,14 +231,12 @@ JUMP_27:
     MOV AX, WORD PTR [BP-2] ;optimized by O1
     NEG AX
     MOV [BP-2], AX
-    MOV AX, 45
-    MOV DX, AX ;optimized by O1
+    MOV DX, 45 ;optimized by O1
     MOV AH, 2
     INT 21H
 ENDIF_7:
     MOV AX, WORD PTR [BP-2] ;optimized by O1
-MOV BX, 0
- ;optimized by O1
+    MOV BX, 0 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JE JUMP_28
@@ -256,16 +247,14 @@ JUMP_28:
     JNZ JUMP_29
     JMP ELSE_8
 JUMP_29:
-    MOV AX, 48
-    MOV DX, AX ;optimized by O1
+    MOV DX, 48 ;optimized by O1
     MOV AH, 2
     INT 21H
     JMP ENDIF_8
 ELSE_8:
 WHILE_5:
     MOV AX, WORD PTR [BP-2] ;optimized by O1
-MOV BX, 0
- ;optimized by O1
+    MOV BX, 0 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JNE JUMP_30
@@ -281,8 +270,7 @@ JUMP_31:
     PUSH AX
     PUSH WORD PTR [BP-24]
     MOV AX, WORD PTR [BP-2] ;optimized by O1
-MOV BX, 10
- ;optimized by O1
+    MOV BX, 10 ;optimized by O1
     MOV DX, 0
     CMP AX, 0
     JGE JUMP_32
@@ -296,8 +284,7 @@ JUMP_32:
     ADD BX, AX
     MOV [BX], CX
     MOV AX, WORD PTR [BP-2] ;optimized by O1
-MOV BX, 10
- ;optimized by O1
+    MOV BX, 10 ;optimized by O1
     MOV DX, 0
     CMP AX, 0
     JGE JUMP_33
@@ -306,16 +293,14 @@ JUMP_33:
     IDIV BX
     MOV [BP-2], AX
     MOV AX, WORD PTR [BP-24] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     ADD AX, BX
     MOV [BP-24], AX
     JMP WHILE_5
 ENDWHILE_5:
 WHILE_6:
     MOV AX, WORD PTR [BP-24] ;optimized by O1
-MOV BX, 0
- ;optimized by O1
+    MOV BX, 0 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JG JUMP_34
@@ -330,23 +315,20 @@ JUMP_35:
     SUB AX, 22
     PUSH AX
     MOV AX, WORD PTR [BP-24] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     SUB AX, BX
     MOV BX, AX ;optimized by O1
     POP AX
     ADD BX, BX
     ADD BX, AX
     MOV AX, WORD PTR [BX] ;optimized by O1
-MOV BX, 48
- ;optimized by O1
+    MOV BX, 48 ;optimized by O1
     ADD AX, BX
     MOV DX, AX ;optimized by O1
     MOV AH, 2
     INT 21H
     MOV AX, WORD PTR [BP-24] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     SUB AX, BX
     MOV [BP-24], AX
     JMP WHILE_6
@@ -378,8 +360,7 @@ FUNC_setQueen: ; localVar:     3, arguCnt:     3
     MOV AX, WORD PTR [BP-2] ;optimized by O1
     MOV BX, WORD PTR [BP-4] ;optimized by O1
     ADD AX, BX
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     SUB AX, BX
     MOV BX, AX ;optimized by O1
     MOV CX, WORD PTR [BP-6] ;optimized by O1
@@ -392,8 +373,7 @@ MOV BX, 1
     MOV AX, WORD PTR [BP-2] ;optimized by O1
     MOV BX, WORD PTR [BP-4] ;optimized by O1
     SUB AX, BX
-MOV BX, 8
- ;optimized by O1
+    MOV BX, 8 ;optimized by O1
     ADD AX, BX
     MOV BX, AX ;optimized by O1
     MOV CX, WORD PTR [BP-6] ;optimized by O1

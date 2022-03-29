@@ -26,6 +26,7 @@ public:
     static std::string strip(std::string str);
     static bool isJmpFlag(std::string ins);
     static bool checkAffect(std::string ins, std::string dst);
+    static bool isReg16Name(std::string regName);
     
     static bool isOpenType(int type);
     static bool isCloseType(int type);

@@ -8,5 +8,6 @@ VAR primeCnt := 25
 FUNC main()
     FOR i := 1 TO primeCnt DO
         CALL printInt(primeTable[i])
+        CALL print(" ")
     ENDFOR
 ENDFUNC

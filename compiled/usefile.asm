@@ -139,8 +139,7 @@ FUNC_main: ; localVar:     0, arguCnt:     0
     PUSH AX
     CALL FUNC_showFile
     ADD SP, 2
-    MOV AX, 10
-    MOV DX, AX ;optimized by O1
+    MOV DX, 10 ;optimized by O1
     MOV AH, 2
     INT 21H
     MOV AX, 652
@@ -158,8 +157,7 @@ FUNC_main: ; localVar:     0, arguCnt:     0
     PUSH AX
     CALL FUNC_showFile
     ADD SP, 2
-    MOV AX, 10
-    MOV DX, AX ;optimized by O1
+    MOV DX, 10 ;optimized by O1
     MOV AH, 2
     INT 21H
 ENDFUNC_main:
@@ -185,8 +183,7 @@ WHILE_2:
     ADD AX, BX
     MOV BX, AX ;optimized by O1
     MOV AX, WORD PTR [BX] ;optimized by O1
-MOV BX, 0
- ;optimized by O1
+    MOV BX, 0 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JNE JUMP_12
@@ -209,8 +206,7 @@ JUMP_13:
     MOV AH, 2
     INT 21H
     MOV AX, WORD PTR [BP-4] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     ADD AX, BX
     MOV [BP-4], AX
     JMP WHILE_2
@@ -255,8 +251,7 @@ FUNC_setFile: ; localVar:     5, arguCnt:     2
     ADD SP, 2
     MOV [BP-6], AX
     MOV AX, WORD PTR [BP-6] ;optimized by O1
-MOV BX, -1
- ;optimized by O1
+    MOV BX, -1 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JE JUMP_40
@@ -286,8 +281,7 @@ WHILE_8:
     ADD AX, BX
     MOV BX, AX ;optimized by O1
     MOV AX, WORD PTR [BX] ;optimized by O1
-MOV BX, 0
- ;optimized by O1
+    MOV BX, 0 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JNE JUMP_42
@@ -316,8 +310,7 @@ JUMP_43:
     CALL FUNC_fputc
     ADD SP, 4
     MOV AX, WORD PTR [BP-10] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     ADD AX, BX
     MOV [BP-10], AX
     JMP WHILE_8
@@ -341,8 +334,7 @@ FUNC_showFile: ; localVar:     3, arguCnt:     1
     ADD SP, 2
     MOV [BP-4], AX
     MOV AX, WORD PTR [BP-4] ;optimized by O1
-MOV BX, -1
- ;optimized by O1
+    MOV BX, -1 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JE JUMP_36
@@ -366,8 +358,7 @@ ENDIF_9:
     MOV [BP-6], AX
 WHILE_7:
     MOV AX, WORD PTR [BP-6] ;optimized by O1
-MOV BX, -1
- ;optimized by O1
+    MOV BX, -1 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JNE JUMP_38

@@ -39,8 +39,7 @@ WHILE_2:
     ADD AX, BX
     MOV BX, AX ;optimized by O1
     MOV AX, WORD PTR [BX] ;optimized by O1
-MOV BX, 0
- ;optimized by O1
+    MOV BX, 0 ;optimized by O1
     MOV CX, 1
     SUB AX, BX
     JNE JUMP_12
@@ -63,8 +62,7 @@ JUMP_13:
     MOV AH, 2
     INT 21H
     MOV AX, WORD PTR [BP-4] ;optimized by O1
-MOV BX, 1
- ;optimized by O1
+    MOV BX, 1 ;optimized by O1
     ADD AX, BX
     MOV [BP-4], AX
     JMP WHILE_2

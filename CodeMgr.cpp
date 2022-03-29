@@ -33,7 +33,7 @@ bool CodeMgr::optimizePushPop(std::string funcName) {
     }
     int lastPush = lineNow - 1;
     while(lastPush > 0) {
-        if(Utils::isJmpFlag(funcCodeVec[lastPush])) {
+        if(Utils::isJmpFlag(funcCodeVec[lastPush]) || Utils::getOpe(funcCodeVec[lastPush]) == "CALL") {
             return false; // can not optimize PUSH out of function but pop in the function
         }
         std::string opeFrom = Utils::getOpe(funcCodeVec[lastPush]);
@@ -48,11 +48,12 @@ bool CodeMgr::optimizePushPop(std::string funcName) {
     if(lastPush < 0) return false; // can not find last PUSH
     std::string opeFrom = Utils::getOpe(funcCodeVec[lastPush]);
     std::string src     = Utils::getReg1(funcCodeVec[lastPush]);
-    funcCodeVec.erase(funcCodeVec.end() - 1); // delete last statement
     if(src == dst) {
         funcCodeVec[lastPush] = OPTIMIZED_BY_O1;
+        funcCodeVec.erase(funcCodeVec.end() - 1);
     }else {
         funcCodeVec[lastPush] = "    MOV " + dst + ", " + src + " " + OPTIMIZED_BY_O1;
+        funcCodeVec.erase(funcCodeVec.end() - 1); // delete last statement
     }
     return true;
 }
@@ -68,17 +69,17 @@ bool CodeMgr::optimizeMovBxAx(std::string funcName) {
     std::string opeMv1 = Utils::getOpe (funcCodeVec[lineNow]);
     std::string dstBx  = Utils::getReg1(funcCodeVec[lineNow]);
     std::string srcAx  = Utils::getReg2(funcCodeVec[lineNow]);
-    if(opeMv1 != "MOV" || dstBx != "BX" || srcAx != "AX") {
+    if(opeMv1 != "MOV" || !Utils::isReg16Name(dstBx) || srcAx != "AX") {
         return false; // optimizePushPop only optimize PUSH - POP
     }
     std::string opeMv2 = Utils::getOpe (funcCodeVec[lineNow - 1]);
     std::string dstAx  = Utils::getReg1(funcCodeVec[lineNow - 1]);
     std::string srcCn  = Utils::getReg2(funcCodeVec[lineNow - 1]);
-    if(opeMv2 != "MOV" || dstAx != "AX") {
+    if(opeMv2 != "MOV" || dstAx != srcAx) {
         return false; // optimizePushPop only optimize PUSH - POP
     }
     funcCodeVec.erase(funcCodeVec.end()-1);
-    funcCodeVec[lineNow - 1] = "MOV " + dstBx + ", " + srcCn + " " + OPTIMIZED_BY_O1;
+    funcCodeVec[lineNow - 1] = "    MOV " + dstBx + ", " + srcCn + " " + OPTIMIZED_BY_O1;
     return true;
 }
 

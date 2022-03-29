@@ -268,10 +268,10 @@ std::string Utils::getReg2(std::string ins) {
 
 
 std::string Utils::strip(std::string str) {  // delete the empty char
-    while(str.size() > 0 && str[0] == ' ') {
+    while(str.size() > 0 && isEmpty(str[0])) {
         str = str.substr(1);
     }
-    while(str.size() > 0 && str[str.length() - 1] == ' ') {
+    while(str.size() > 0 && isEmpty(str[str.length() - 1])) {
         str = str.substr(0, str.length() - 1);
     }
     return str;
@@ -297,5 +297,12 @@ bool Utils::checkAffect(std::string ins, std::string dst) {
     ins = deleteRem(ins);
     return ins.find(dst) != -1;
 
+}
+
+
+bool Utils::isReg16Name(std::string regName) {
+    return 
+        regName == "AX" || regName == "BX" || regName == "CX" || regName == "DX" ||
+        regName == "SI" || regName == "DI" || regName == "SP" || regName == "BP"; 
 }
 
