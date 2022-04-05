@@ -1,0 +1,8 @@
+IMPORT "import/ext/pause.txt"
+IMPORT "import/ext/cls.txt"
+
+
+FUNC main()
+    CALL pause()
+    CALL cls()
+ENDFUNC

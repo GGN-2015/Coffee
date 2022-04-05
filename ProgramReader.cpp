@@ -891,7 +891,8 @@ void ProgramReader::compileWhile(int lineFrom) {
     match(TOKEN_ENDOFLINE, "END_OF_LINE");
     int end = mSubPointer[lineFrom][mSubPointer[lineFrom].size() - 1];
     mLineNow ++;
-    whileStack.push(lineFrom);
+    whileStack.push(whileId);
+    mGetLineIdByWhileId[whileId] = lineFrom;
     while(mLineNow < end) {
         compileLine(mLineNow);
     }
@@ -967,7 +968,8 @@ void ProgramReader::compileFor(int lineFrom) {
     match(TOKEN_ENDOFLINE, "END_OF_LINE");
     int end = mSubPointer[lineFrom][mSubPointer[lineFrom].size() - 1];
     mLineNow ++;
-    whileStack.push(lineFrom);
+    whileStack.push(whileId);
+    mGetLineIdByWhileId[whileId] = lineFrom;
     while(mLineNow < end) {
         compileLine(mLineNow);
     }
@@ -1036,7 +1038,7 @@ void ProgramReader::compileLine(int lineFrom) { // total eight form
         //fprintf(stderr, "compileFor lineFrom = %d\n", lineFrom);
         compileFor(lineFrom);
     }else
-    if(!whileStack.empty() && mMainPointer[lineFrom] == whileStack.top()) {
+    if(!whileStack.empty() && mMainPointer[lineFrom] == mGetLineIdByWhileId[whileStack.top()]) {
         int whileId = whileStack.top();
         openLine(mLineNow);
         if(getToken().type == TOKEN_BREAK) {

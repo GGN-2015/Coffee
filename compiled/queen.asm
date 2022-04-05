@@ -2,8 +2,10 @@ STACKSG SEGMENT STACK
     GLOBAL_BUILTIN_GETS_BUF DW 129 DUP(0)
     GLOBAL_BUILTIN_GETS_CHARCOUNT DW 1 DUP(0)
     GLOBAL_BUILTIN_COMPACT_BUF DW 129 DUP(0)
-    DW 70, 65, 73, 76, 32, 84, 79, 32, 79, 80, 69, 78, 70, 73, 76, 69, 10, 0
-    DW 70, 65, 73, 76, 32, 84, 79, 32, 67, 76, 79, 83, 69, 70, 73, 76, 69, 10, 0
+    DW 70,65,73,76,32,84,79,32,79,80
+    DW 69,78,70,73,76,69,10,0
+    DW 70,65,73,76,32,84,79,32,67,76
+    DW 79,83,69,70,73,76,69,10,0
     GLOBAL_col DW 9 DUP(0)
     GLOBAL_add DW 16 DUP(0)
     GLOBAL_sub DW 16 DUP(0)
@@ -194,7 +196,6 @@ ENDFUNC_dfs:
 FUNC_main: ; localVar:     0, arguCnt:     0
     PUSH BP
     MOV BP, SP
-    SUB SP, 0
     MOV AX, 1
     PUSH AX
     CALL FUNC_dfs
@@ -204,7 +205,6 @@ FUNC_main: ; localVar:     0, arguCnt:     0
     CALL FUNC_printInt
     ADD SP, 2
 ENDFUNC_main:
-    ADD SP, 0
     POP BP
     RET
 

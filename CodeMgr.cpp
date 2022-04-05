@@ -43,7 +43,8 @@ bool CodeMgr::optimizePushPop(std::string funcName) {
         if(opeFrom == "PUSH") {
             break; // this line is the last PUSH that we find
         }
-        if(Utils::checkAffectReg(funcCodeVec[lastPush], dst)) {
+        if(Utils::checkAffectReg(funcCodeVec[lastPush], dst) || 
+            Utils::checkUseReg(funcCodeVec[lastPush], dst)) {
             return false; // can not optimize when affected
         }
         lastPush --;
@@ -87,9 +88,52 @@ bool CodeMgr::optimizeMovBxAx(std::string funcName) {
 }
 
 
+bool CodeMgr::optimizeMovAxImm(std::string funcName) {
+    std::vector<std::string> &funcCodeVec = getFuncCode(funcName);
+    int lineNow = funcCodeVec.size() - 1;
+    if(Utils::isJmpFlag(funcCodeVec[lineNow])) {
+        return false; // do not optimize JMP flag
+    }
+    std::string ope = Utils::getOpe (funcCodeVec[lineNow]);
+    std::string dst = Utils::getReg1(funcCodeVec[lineNow]);
+    std::string imm = Utils::getReg2(funcCodeVec[lineNow]);
+    if(ope != "MOV" || !Utils::isReg16Name(dst) || !Utils::isImm(imm)) {
+        return false; // optimizePushPop only optimize PUSH - POP
+    }
+    int lastMov = lineNow - 1;
+    while(lastMov >= 0) {
+        if(Utils::isJmpFlag(funcCodeVec[lastMov]) || 
+            Utils::getOpe(funcCodeVec[lastMov]) == "CALL" ||
+            Utils::getOpe(funcCodeVec[lastMov])[0] == 'J'
+        ) {
+            return false; // can not optimize MOV out of function but MOV in the function
+        }
+        std::string opeFrom = Utils::getOpe(funcCodeVec[lastMov]);
+        std::string lastDst = Utils::getReg1(funcCodeVec[lastMov]);
+        if(opeFrom == "MOV" && lastDst == dst) {
+            std::string lastImm = Utils::getReg2(funcCodeVec[lastMov]); // find last MOV AX, ...
+            if(Utils::isImm(lastImm) && atoi(imm.c_str()) == atoi(lastImm.c_str())) {
+                funcCodeVec.erase(funcCodeVec.end()-1);
+                return true;
+            }else {
+                return false; // const is different
+            }
+        }
+        if(Utils::checkAffectReg(funcCodeVec[lastMov], dst)) {
+            return false; // can not optimize when affected
+        }
+        lastMov --;
+    }
+    return false;
+}
+
+
 bool CodeMgr::optimize1LastLine(std::string funcName) {
-    bool ans1 = optimizePushPop(funcName);
-    bool ans2 = optimizeMovBxAx(funcName);
+    bool ans1 = optimizePushPop (funcName);
+    bool ans2 = optimizeMovBxAx (funcName);
+    // bool ans3 = optimizeMovAxImm(funcName);
+    // return ans1 || ans2 || ans3;
+    // return ans1;
     return ans1 || ans2;
 }
 
@@ -311,7 +355,9 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
             funcString.first.c_str(), localVarCnt, arguCnt);
         printf("    PUSH BP\n");
         printf("    MOV BP, SP\n");
-        printf("    SUB SP, %d\n", 2 * localVarCnt); // create local VARs
+        if(localVarCnt != 0) {
+            printf("    SUB SP, %d\n", 2 * localVarCnt); // create local VARs
+        }
         for(int i = 1; i <= arguCnt; i ++) {         // create argu list from stack
             printf("    MOV AX, [BP+%d]\n", 2 + 2 * i);
             printf("    MOV [BP-%d], AX\n", 2 * i);
@@ -322,7 +368,9 @@ void CodeMgr::outputCode(int stackSegmentSizeWord) {
             printf("%s", funcLine.c_str());
         }
         printf("ENDFUNC_%s:\n", funcString.first.c_str());
-        printf("    ADD SP, %d\n", 2 * localVarCnt); // destroy local VARs
+        if(localVarCnt != 0) {
+            printf("    ADD SP, %d\n", 2 * localVarCnt); // destroy local VARs
+        }
         printf("    POP BP\n");
         printf("    RET\n\n");
     }
@@ -520,15 +568,20 @@ void CodeMgr::popToArrayVar(std::string funcName) {
 
 
 void CodeMgr::setGlobalString(std::string funcName, int offset, std::string realString) {
-    stackSegment += "    DW ";
+    std::vector<int> charList;
     for(int i = 0; i < realString.length(); i ++) {
-        stackSegment += std::to_string(realString[i]) + ", ";
-        // appendFunc(funcName, "    MOV AX, " + std::to_string((   unsigned)realString[i]));
-        // appendFunc(funcName, "    MOV SI, " + std::to_string((offset + i) * 2));
-        // appendFunc(funcName, "    MOV [SI], AX"); // offset
+        charList.push_back((unsigned int)((unsigned char)(realString[i])));
     }
-    stackSegment += "0\n";
-    stackSegmentLengthWord += realString.length() + 1;
+    charList.push_back(0);
+    for(int i = 0; i < charList.size(); i += 10) {
+        stackSegment += "    DW ";
+        for(int j = 0; j < 10 && (i + j) < charList.size(); j ++) {
+            int pos = i + j;
+            stackSegment += (("," + std::to_string(charList[pos])).c_str() + (j == 0));
+        }
+        stackSegment += "\n";
+    }
+    stackSegmentLengthWord += charList.size();
 }
 
 

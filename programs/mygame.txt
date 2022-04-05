@@ -1,0 +1,443 @@
+IMPORT "import/stdio.txt"
+
+
+VAR actId := 1 ;当前的背景编号
+VAR lstOp := 0 ;上一次的操作编号
+
+
+VAR knowledge    := 0   ;智力水平，上不封顶
+VAR comunication := 0   ;交流水平
+VAR emotion      := 5   ;情绪     [0: 低落, 10: 高涨]
+VAR tiredness    := 0   ;疲劳程度
+VAR timeNow      := 0   ;当前时间 [%4 = 0 上午 , 1 下午 , 2 晚上, 3 深夜]
+VAR programGame  := 0   ;编写程序的完成进度
+
+
+FUNC unifyEmotionAndTiredness() ; 把情绪和疲劳程度控制在 0 ~ 9 之间
+    IF emotion < 0 THEN
+        emotion := 0
+    ENDIF
+    IF emotion > 9 THEN
+        emotion := 9
+    ENDIF
+    IF tiredness < 0 THEN
+        tiredness := 0
+    ENDIF
+    IF tiredness > 9 THEN
+        tiredness := 9
+    ENDIF
+ENDFUNC
+
+
+VAR homeworkCnt    := 3   ;作业数
+VAR homeworkFin    := 0   ;作业完成数
+VAR onLineClassCnt := 0   ;统计当前正在上第几次在线课程
+
+
+FUNC actGameBegin()
+    CALL print("\nTIPS: Press the spacebar to continue reading below.\n")
+    lstOp := GETCHAR()
+    CALL print("\nYou are a student of the college of computer science and technology of Jilin University.\n")
+    lstOp := GETCHAR()
+    CALL print("\nDuring the novel coronavirus pneumonia, you were arranged in a dormitory building for a concentrated isolation.\n")
+    lstOp := GETCHAR()
+    CALL print("\nTired of the day and night cycle of online classes, homework and boxed lunch, you're going to do something interesting.\n")
+    lstOp := GETCHAR()
+    actId := 2  ;进入游戏正文
+ENDFUNC
+
+
+FUNC actUnfinished()
+    CALL print("\nWARNING: The current scene is still under construction. Please contact the game producer for more information.\n")
+    CALL print("\nERRORLEVEL: ")
+    CALL printInt(actId)
+    CALL print("\n")
+    lstOp := GETCHAR()
+    actId := 2 ; 回到主菜单
+ENDFUNC
+
+
+FUNC outputDate()
+    CALL print("\n ---------- DAY ")
+    CALL printInt(timeNow / 4 + 1)
+    CALL print(", TIME ")
+    CALL printInt((timeNow % 4 + 1) * 6 - 1)
+    CALL print(":00 ---------- \n")
+ENDFUNC
+
+
+VAR psyCounseling := 0  ; 是否可以看到心理咨询页面
+VAR selfTest      := 0  ; 是否进行过自我测验
+
+
+FUNC actChooseBehaviour()
+    CALL outputDate()
+    CALL print("\nWhat would you do next?\n")
+    CALL print("\n0. Exit the game.\n")                 ; act 0
+    CALL print("\n1. Do homework.\n")                   ; act 3
+    CALL print("\n2. Watch online classes.\n")          ; act 4
+    CALL print("\n3. Play games.\n")                    ; act 5
+    CALL print("\n4. Watch Japanese animation.\n")      ; act 6
+    CALL print("\n5. Chat with classmates online.\n")   ; act 7
+    CALL print("\n6. Write program.\n")                 ; act 8
+    CALL print("\n7. Have a sleep\n")                   ; act 9
+    IF psyCounseling THEN
+        CALL print("\nx. Ask for a psychological counseling\n") ; act 10
+    ENDIF
+    IF knowledge >= 10 THEN
+        CALL print("\ny. Test your learning achievements.\n") ; act 11
+    ENDIF
+    lstOp := GETCHAR()
+    IF knowledge >= 10 AND lstOp = 'y' THEN ; 只有当知识水平达到 10 之后才能开始自我测验
+        actId := 11
+        RETURN
+    ENDIF
+    IF lstOp = '0' THEN
+        actId := 0
+    ELSE
+        IF '1' <= lstOp AND lstOp <= '7' THEN
+            actId := lstOp - '1' + 3
+        ELSE
+            IF lstOp = 'x' THEN
+                actId := 10
+            ELSE
+                CALL print("\nOption does not exist, please reselect.\n\n")
+            ENDIF
+        ENDIF
+    ENDIF
+ENDFUNC
+
+
+FUNC actPsyCounseling() ; act 10
+    IF psyCounseling = 0 THEN
+        CALL print("\nBy chance, you found the psychological counseling website provided by the University for students. You recorded this website.\n")
+        lstOp := GETCHAR()
+        psyCounseling := 1
+    ENDIF
+    IF tiredness <= 7 THEN
+        tiredness := tiredness + 1       ; 心理咨询令人疲劳
+    ENDIF
+    IF emotion >= 3 THEN
+        emotion   := emotion   - 1       ; 心理咨询令人不爽
+    ENDIF
+    CALL unifyEmotionAndTiredness()
+    CALL print("\nYou have communicated with the counselor for a long time, and finally you understand your mental state.\n")
+    lstOp := GETCHAR()
+    CALL print("\n emotion (0 to 9): ")
+    CALL printInt(emotion)
+    PUTCHAR('\n')
+    lstOp := GETCHAR()
+    CALL print("\n tiredness (0 to 9): ")
+    CALL printInt(tiredness)
+    PUTCHAR('\n')
+    lstOp := GETCHAR()
+    CALL print("\n comunication ability: ")
+    CALL printInt(comunication)
+    PUTCHAR('\n')
+    lstOp := GETCHAR()
+    timeNow := timeNow + 1
+    actId := 2 ; 回到选择界面
+ENDFUNC
+
+
+FUNC showOnlineClassDetail()
+    IF onLineClassCnt = 1 THEN
+        CALL print("\nThe content of this online class is the operating system. You think the old teacher's class is quite interesting.\n")
+        knowledge := knowledge + 1
+        lstOp := GETCHAR()
+    ENDIF
+    IF onLineClassCnt = 2 THEN
+        CALL print("\nThe content of this online course is java programming. You feel that it is no different from C + +.\n")
+        lstOp := GETCHAR()
+    ENDIF
+    IF onLineClassCnt = 3 THEN
+        CALL print("\nThis is an online course on MIPS processor design. Although you don't know what MIPS is, you still learn a lot of new things.\n")
+        knowledge := knowledge + 1
+        lstOp := GETCHAR()
+    ENDIF
+    IF onLineClassCnt > 3 THEN
+        CALL print("\nThere are no online classes to watch, so you checked some computer related information on the Internet.\n")
+        lstOp := GETCHAR()
+        IF onLineClassCnt % 4 = 0 THEN
+            CALL print("\nYou seem to have learned something from the information on the Internet. It seems that BiliBili is really a good website.\n")
+            knowledge := knowledge + 1
+            lstOp := GETCHAR()
+        ELSE
+            CALL print("\nYou are addicted to the programmer jokes on CSDN and can't extricate yourself. Unknowingly, hours fly by.\n")
+            emotion := emotion + 1
+            CALL unifyEmotionAndTiredness()
+            lstOp := GETCHAR()
+        ENDIF
+    ENDIF
+ENDFUNC
+
+
+FUNC actWatchOnlineClasses() ; act 4
+    IF tiredness >= 8 THEN
+        CALL print("\nYou are so sleepy now that you feel sleepy while listening to the class. You fall asleep before you know it. When you wake up, the online class is over.\n")
+        tiredness := tiredness - 1
+        timeNow   := timeNow + 1
+        lstOp     := GETCHAR()
+        actId     := 2  ; 回到选择界面
+        RETURN
+    ENDIF
+    IF emotion <= 1 THEN
+        CALL print("\nYou're in a terrible mood. Listening to the robot like expressionless teaching in the video, you can't wait to smash the computer screen.\n")
+        tiredness := tiredness + 1
+        timeNow   := timeNow   + 1
+        CALL unifyEmotionAndTiredness()
+        lstOp := GETCHAR()
+        actId := 2  ; 回到选择界面
+        RETURN
+    ENDIF
+    tiredness      := tiredness + 1
+    CALL unifyEmotionAndTiredness()
+    timeNow        := timeNow   + 1
+    onLineClassCnt := onLineClassCnt + 1 ; 看了一次网课
+    CALL showOnlineClassDetail()
+    actId := 2  ; 回到选择界面
+ENDFUNC
+
+
+FUNC showHomeworkDetail()
+    IF homeworkFin = 1 THEN
+        CALL print("\nThis is the first assignment of computer composition principle. You reviewed a lot of hardware related knowledge.\n")
+        knowledge := knowledge + 1
+        lstOp := GETCHAR()
+    ENDIF
+    IF homeworkFin = 2 THEN
+        CALL print("\nThis is the first assignment of combinatorial mathematics. There are only two questions. After a while, you finish it. It seems that you haven't learned anything new.\n")
+        lstOp := GETCHAR()
+    ENDIF
+    IF homeworkFin > 2 THEN
+        CALL print("\nYou finished your homework before you had time to aftertaste it. You don't seem to have learned anything from this assignment.\n")
+        lstOp := GETCHAR()
+    ENDIF
+ENDFUNC
+
+
+FUNC actDoHomework() ; act 3
+    IF homeworkFin >= homeworkCnt THEN
+        CALL print("\nYou browse the superstar online class platform from beginning to end and find that the teachers haven't assigned homework yet.\n")
+        lstOp := GETCHAR()
+    ELSE
+        IF tiredness >= 8 THEN
+            CALL print("\nYou are too tired to concentrate on your homework.\n")
+            lstOp := GETCHAR()
+            CALL print("\nTime flies by, you feel very sad, but you haven't even finished one of your homework.\n")
+            lstOp := GETCHAR()
+        ELSE
+            IF emotion <= 1 THEN
+                CALL print("\nYou're in a bad mood. You can't concentrate while watching your classmates study hard.\n")
+                lstOp := GETCHAR()
+                CALL print("\nYou tore the draft paper to pieces and didn't finish any homework.\n")
+                lstOp := GETCHAR()
+            ELSE
+                CALL print("\nYou start to do your homework. It feels like it's not as difficult as you thought before.\n")
+                lstOp := GETCHAR()
+                CALL print("\nYou have finished an assignment.\n")
+                lstOp := GETCHAR()
+                homeworkFin := homeworkFin + 1
+                CALL showHomeworkDetail()          ; 现实当前作业的具体内容
+            ENDIF
+        ENDIF
+        emotion   := emotion   - 2
+        tiredness := tiredness + 2
+        timeNow   := timeNow   + 1 
+        CALL unifyEmotionAndTiredness()  ; 值合法控制
+        IF tiredness >= 8 THEN
+            CALL print("\nYou feel so tired that you don't want to do your homework anymore.\n")
+            lstOp := GETCHAR()
+        ELSE
+            IF emotion <= 2 THEN
+                CALL print("\n\"Why is there always so much homework to do?\" You ask yourself.\n")
+                lstOp := GETCHAR()
+                CALL print("\nIf you were born to do your homework, you might as well die.\n")
+                lstOp := GETCHAR()
+            ENDIF
+        ENDIF
+    ENDIF
+    actId := 2  ; 回到选择界面
+ENDFUNC
+
+
+FUNC actSleep() ; act 9
+    IF emotion = 9 THEN
+        IF tiredness >= 7 THEN
+            CALL print("\nAlthough your body already feels a little tired.\n")
+            lstOp := GETCHAR()
+        ENDIF
+        CALL print("\nYou are so excited that you can't sleep at all.\n")
+        lstOp := GETCHAR()
+        CALL print("\nThere are many happy pictures in your mind.\n")
+        lstOp := GETCHAR()
+        actId := 2  ; 回到选择界面
+    ELSE
+        IF tiredness = 0 THEN
+            CALL print("\nYou don't want to sleep at all. It's like waking up after a natural sleep.\n")
+            lstOp := GETCHAR()
+            actId := 2  ; 回到选择界面
+        ELSE
+            emotion   := emotion   + 2
+            tiredness := tiredness - 5
+            timeNow   := timeNow   + 1
+            CALL unifyEmotionAndTiredness()  ; 值合法控制
+            IF emotion > 7 THEN ; 睡觉不会特别有"成就感"
+                emotion := 7
+            ENDIF
+            CALL print("\nYou had a good sleep and felt a lot of emotional recovery.\n")
+            lstOp := GETCHAR()
+            IF tiredness <= 1 THEN
+                CALL print("\nNow you don't feel tired at all.\n")
+                lstOp := GETCHAR()
+                CALL print("\nYou wish you could do something interesting.\n")
+                lstOp := GETCHAR()
+            ENDIF
+            actId := 2  ; 回到选择界面
+        ENDIF
+    ENDIF
+ENDFUNC
+
+
+VAR playCnt := 0
+VAR gameCnt := 3
+
+FUNC actPlayGames()
+    playCnt   := playCnt   + 1
+    timeNow   := timeNow   + 1
+    tiredness := tiredness + 2
+    VAR cycle := playCnt   % gameCnt
+    actId     := 2                ; 回到选择界面
+    IF gameCnt <= 3 AND playCnt >= 5 THEN
+        CALL print("\nPlaying the same game over and over, you get bored. You may have to ask your classmates about new games to play.\n")
+        lstOp := GETCHAR()
+        CALL print("\nYou lose track of time and feel tired.\n")
+        lstOp := GETCHAR()
+        tiredness := tiredness + 2
+        RETURN
+    ENDIF
+    IF tiredness >= 8 THEN
+        CALL print("\nYou are too sleepy to concentrate on the game. \n")
+        lstOp := GETCHAR()
+        CALL print("\nYou hang up while lying on the table to sleep. \n")
+        tiredness := tiredness - 1
+        lstOp := GETCHAR()
+        RETURN
+    ENDIF
+    IF cycle = 0 THEN         ; CSGO
+        CALL print("\nYou play CSGO for a long time and feel a little dizzy. \n")
+        emotion := emotion + 1
+        CALL unifyEmotionAndTiredness()
+        lstOp := GETCHAR()
+        RETURN
+    ENDIF
+    IF cycle = 1 THEN         ; MC
+        CALL print("\nYou played the game \"Minecraft\" and found it very interesting to build a house in a sandbox.\n")
+        lstOp := GETCHAR()
+        CALL print("\nYou found an abandoned mine while digging. You are very happy.\n")
+        lstOp := GETCHAR()
+        IF knowledge >= 3 THEN
+            CALL print("\nYou suddenly recalled the DFS algorithm in the algorithm class, so you didn't get lost in the mine.\n")
+            emotion := emotion + 2
+        ELSE
+            CALL print("\nYou lost your way in the mine because you didn't study the algorithm course carefully.\n")
+            emotion := emotion + 1
+        ENDIF
+        lstOp := GETCHAR()
+        CALL unifyEmotionAndTiredness()
+        RETURN
+    ENDIF
+    IF cycle = 2 THEN         ; needy girl overdose
+        CALL print("\nYou start playing with 'Needy Girl Overdose'.\n")
+        lstOp := GETCHAR()
+        IF emotion <= 2 THEN
+            CALL print("\nYou led the hostess to take drugs all the time. Later, the hostess went crazy and you were very unhappy.\n")
+            emotion := emotion + 1
+        ELSE
+            IF knowledge >= 1 THEN
+                CALL print("\nYou learned some time management skills in the game.\n")
+                knowledge := knowledge + 1
+            ELSE
+                CALL print("\nYou think the world in the game is very dark, as if it is the same in real life.\n")
+            ENDIF
+            emotion := emotion + 2
+        ENDIF
+        lstOp := GETCHAR()
+        CALL unifyEmotionAndTiredness()
+        RETURN
+    ENDIF
+ENDFUNC
+
+
+FUNC actWatchJapaneseAnimation() ; act 6
+    CALL print("\nAnime always seems to be very interesting, you spend a long time watching an entire anime.\n")
+    lstOp := GETCHAR()
+    actId := 2 ; 回到主菜单
+    IF tiredness >= 9 THEN
+        CALL print("\nYou feel very tired, very tired, and fall asleep while watching the anime. \n")
+        tiredness := tiredness - 1
+        RETURN
+    ENDIF
+    emotion := emotion + 2
+    IF comunication = 0 THEN
+        CALL print("\nThe characters in the anime seem to have high emotional intelligence, and you learn a lot of communication skills and toilet seats.\n")
+        lstOp := GETCHAR()
+        comunication := comunication + 1
+    ENDIF
+    tiredness := tiredness + 1
+    CALL unifyEmotionAndTiredness()
+ENDFUNC
+
+
+FUNC main()
+    VAR sucFlag := 0
+    WHILE 1 LOOP
+        sucFlag := 0
+        IF actId = 0 THEN            ; actId = 0 用于退出游戏
+            CALL print("\nAre you sure to quit the game?(y: Yes, else: No)\n")
+            lstOp := GETCHAR()
+            IF lstOp = 'y' THEN
+                BREAK
+            ELSE
+                actId := 2
+            ENDIF
+        ENDIF
+        IF actId = 1 THEN            ; actId = 1 介绍背景并开始冒险
+            CALL actGameBegin()
+            sucFlag := 1
+        ENDIF
+        IF actId = 2 THEN
+            CALL actChooseBehaviour(); 选择一个行为
+            sucFlag := 1
+        ENDIF
+        IF actId = 3 THEN
+            CALL actDoHomework()     ; 写作业
+            sucFlag := 1
+        ENDIF
+        IF actId = 4 THEN
+            CALL actWatchOnlineClasses()     ; 看网课
+            sucFlag := 1
+        ENDIF
+        IF actId = 5 THEN
+            CALL actPlayGames()              ; 打游戏
+            sucFlag := 1
+        ENDIF
+        IF actId = 6 THEN
+            CALL actWatchJapaneseAnimation() ; 看动漫
+            sucFlag := 1
+        ENDIF
+        IF actId = 9 THEN                    ; 睡觉
+            CALL actSleep()
+            sucFlag := 1
+        ENDIF
+        IF actId = 10 THEN
+            CALL actPsyCounseling()          ; 心理咨询
+            sucFlag := 1
+        ENDIF
+        IF sucFlag = 0 THEN
+            CALL actUnfinished()
+        ENDIF
+    ENDWHILE
+    CALL print("\nGame Exit.\n")     ; 游戏退出了
+    lstOp := GETCHAR()
+ENDFUNC

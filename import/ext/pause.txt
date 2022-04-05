@@ -1,0 +1,9 @@
+IMPORT "import/stdio.txt"
+IMPORT "import/ext/getch.txt"
+
+
+FUNC pause()
+    CALL print("press any key to continue ...")
+    CALL getch()
+    PUTCHAR('\n')
+ENDFUNC

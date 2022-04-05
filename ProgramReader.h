@@ -79,6 +79,7 @@ protected:
     std::string mFunctionName;             // the function which is being compiled
     
     std::stack<int> whileStack;
+    std::map<int, int> mGetLineIdByWhileId;// get line id by while id 
     
     void openLine(int lineId);             // open a line and begin to read tokens 
 	const Token& getToken();               // get a token

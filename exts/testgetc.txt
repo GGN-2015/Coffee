@@ -1,0 +1,9 @@
+IMPORT "import/ext/getch.txt"
+IMPORT "import/stdio.txt"
+
+FUNC main()
+    VAR ch := getch()
+    CALL print("ASCII = ")
+    CALL printInt(ch)
+    PUTCHAR('\n')
+ENDFUNC

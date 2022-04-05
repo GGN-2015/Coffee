@@ -1,0 +1,5 @@
+FUNC getch()
+    ASM("MOV AH, 07H") ;无回显读入一个字符，存到 AL 中
+    ASM("INT 21H")
+    ASM("MOV AH, 0")   ;AX 为最终返回值
+ENDFUNC

@@ -100,7 +100,6 @@ ENDFUNC_dfs:
 FUNC_main: ; localVar:     0, arguCnt:     0
     PUSH BP
     MOV BP, SP
-    SUB SP, 0
     MOV AX, 1
     PUSH AX
     CALL FUNC_dfs
@@ -110,7 +109,6 @@ FUNC_main: ; localVar:     0, arguCnt:     0
     CALL FUNC_printInt
     ADD SP, 2
 ENDFUNC_main:
-    ADD SP, 0
     POP BP
     RET
 

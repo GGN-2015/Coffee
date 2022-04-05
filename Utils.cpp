@@ -294,17 +294,18 @@ bool Utils::isJmpFlag(std::string ins) {
 
 
 bool Utils::checkAffectReg(std::string ins, std::string reg) {
+    ins = deleteRem(ins);
     std::string ope = getOpe(ins);
-    if(ope == "PUSH") {
+    if(ope == "PUSH" || ope == "CALL") {
         if(reg == "SP") {
             return true;
         }else {
             return false; // push does not change the value of any reg except sp
         }
     }
-    ins = deleteRem(ins);
-    bool part = getReg1(ins) == reg;
-    if(part) return true;
+    if(ope[0] == 'J') {   // jump instruction don't change any common 16 register
+        return false;
+    }
     if(ope == "DIV" || ope == "IDIV" || ope == "MUL" || ope == "IMUL") {
         if(reg == "AX" || reg == "DX") {
             return true;
@@ -312,8 +313,17 @@ bool Utils::checkAffectReg(std::string ins, std::string reg) {
             return false;
         }
     }else {
-        return false;
+        bool part = getReg1(ins) == reg;
+        return part;
     }
+}
+
+
+bool Utils::checkUseReg(std::string ins, std::string dst) { // read or write a register
+    ins = deleteRem(ins);
+    std::string Rdst = getReg1(ins);
+    std::string Rsrc = getReg2(ins);
+    return checkAffectReg(ins, dst) || Rdst == dst || Rsrc == dst;
 }
 
 
@@ -321,5 +331,17 @@ bool Utils::isReg16Name(std::string regName) {
     return 
         regName == "AX" || regName == "BX" || regName == "CX" || regName == "DX" ||
         regName == "SI" || regName == "DI" || regName == "SP" || regName == "BP"; 
+}
+
+
+bool Utils::isImm(std::string str) {
+    if(str[0] == '-') {
+        str[0] = ' ';
+        str = strip(str);
+    }
+    if(str == "") return false;
+    else {
+        return '0' <= str[0] && str[0] <= '9';
+    }
 }
 

@@ -1,0 +1,4 @@
+FUNC cls()
+    ASM("MOV AX, 3") ; 在 80 * 25 模式下快速清空屏幕
+    ASM("INT 10H")
+ENDFUNC

@@ -47,7 +47,6 @@ ENDFUNC_fact:
 FUNC_main: ; localVar:     0, arguCnt:     0
     PUSH BP
     MOV BP, SP
-    SUB SP, 0
     MOV AX, 7
     PUSH AX
     CALL FUNC_fact
@@ -56,7 +55,6 @@ FUNC_main: ; localVar:     0, arguCnt:     0
     CALL FUNC_printInt
     ADD SP, 2
 ENDFUNC_main:
-    ADD SP, 0
     POP BP
     RET
 

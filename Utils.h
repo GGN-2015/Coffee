@@ -26,6 +26,7 @@ public:
     static std::string strip(std::string str);
     static bool isJmpFlag(std::string ins);
     static bool checkAffectReg(std::string ins, std::string dst);
+    static bool checkUseReg   (std::string ins, std::string dst);
     static bool isReg16Name(std::string regName);
     
     static bool isOpenType(int type);
@@ -37,6 +38,7 @@ public:
     
     static bool checkHex(char *hexChar);
     static bool isHexChar(char ch);
+    static bool isImm(std::string str);
 };
 
 #endif
