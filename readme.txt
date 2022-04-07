@@ -18,6 +18,7 @@
 // 3. Define local variables
 // 4. Branch structure 'IF'
 // 5. Loop structure 'WHILE' and 'FOR'
+// 6. INNER ASM
 
 
 // ---------------------------------------------------------------------- //
