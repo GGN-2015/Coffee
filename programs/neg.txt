@@ -1,0 +1,7 @@
+IMPORT "import/stdio.txt"
+
+
+FUNC main()
+    VAR x := -(3+5) * (9+ -6) - 60
+    CALL printInt(x)
+ENDFUNC

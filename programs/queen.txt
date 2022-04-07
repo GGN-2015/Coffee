@@ -1,0 +1,38 @@
+IMPORT "import/stdio.txt"
+
+
+VAR col[9], add[16], sub[16] ; 记录哪些行，哪些列有皇后
+VAR ans                      ; 记录总方案数
+
+
+FUNC setQueen(x, i, newVal)
+    col[i]         := newVal
+    add[x + i - 1] := newVal
+    sub[x - i + 8] := newVal
+ENDFUNC
+
+
+FUNC checkPos(x, i)
+    RETURN NOT(col[i]) AND NOT(add[x + i - 1]) AND NOT(sub[x - i + 8])
+ENDFUNC
+
+
+FUNC dfs(x)
+    IF x >= 9 THEN
+        ans := ans + 1
+    ELSE
+        FOR i := 1 TO 8 DO
+            IF checkPos(x, i) THEN
+                CALL setQueen(x, i, 1)
+                CALL dfs(x + 1)
+                CALL setQueen(x, i, 0)
+            ENDIF
+        ENDFOR
+    ENDIF
+ENDFUNC
+
+
+FUNC main()                           ; 一些初始化工作
+    CALL dfs(1)
+    CALL printInt(ans)
+ENDFUNC

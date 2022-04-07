@@ -1,0 +1,41 @@
+IMPORT "import/stdio.txt"
+
+
+FUNC exgcd(x, y, pa, pb)
+    CALL print(" a = ")
+    CALL printInt(x)
+    PUTCHAR(',')
+    CALL print(" b = ")
+    CALL printInt(y)
+    PUTCHAR(10)
+    IF y = 0 THEN
+        VARAT(pa) := 1
+        VARAT(pb) := 0
+        RETURN x
+    ELSE
+        VAR a0, b0, gcd
+        gcd := exgcd(y, x % y, OFFSET(a0), OFFSET(b0))
+        VARAT(pa) := b0
+        VARAT(pb) := a0 - b0 * (x / y)
+        RETURN gcd
+    ENDIF
+ENDFUNC
+
+
+FUNC main()
+    VAR x, y, a, b, gcd
+    CALL print("Input x:")
+    x := geti()
+    CALL print("Input y:")
+    y := geti()
+    gcd := exgcd(x, y, OFFSET(a), OFFSET(b))
+    CALL print(" a = ")
+    CALL printInt(a)
+    PUTCHAR(10)
+    CALL print(" b = ")
+    CALL printInt(b)
+    PUTCHAR(10)
+    CALL print(" gcd = ")
+    CALL printInt(gcd)
+    PUTCHAR(10)
+ENDFUNC

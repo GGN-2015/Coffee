@@ -1,0 +1,6 @@
+IMPORT "import/conio.txt"
+
+
+FUNC main()
+    CALL print("Hello Quote\" \x0A like this!")
+ENDFUNC

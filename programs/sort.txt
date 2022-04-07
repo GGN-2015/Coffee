@@ -1,0 +1,57 @@
+IMPORT "import/conio.txt"
+
+
+VAR arr[100]                ; 储存被排序的数组
+VAR arrTmp[100]             ; 用于归并排序的临时数组
+FUNC mergeSort(L, R)
+    IF L >= R THEN          ; 不超过一个元素不用排序
+        RETURN
+    ENDIF
+    VAR mid := (L + R) / 2
+    VAR pos := L
+    CALL mergeSort(L,   mid)     ; 递归排序左半部分和右半部分
+    CALL mergeSort(mid+1, R)
+    VAR i := L, j := mid + 1
+    WHILE i <= mid AND j <= R LOOP
+        IF arr[i] <= arr[j] THEN
+            arrTmp[pos] := arr[i]
+            pos := pos + 1
+            i   := i   + 1
+        ELSE
+            arrTmp[pos] := arr[j]
+            pos := pos + 1
+            j   := j   + 1
+        ENDIF
+    ENDWHILE
+    WHILE i <= mid LOOP
+        arrTmp[pos] := arr[i]
+        pos := pos + 1
+        i   := i   + 1
+    ENDWHILE
+    WHILE j <= R LOOP
+        arrTmp[pos] := arr[j]
+        pos := pos + 1
+        j   := j   + 1
+    ENDWHILE
+    FOR i := L TO R DO
+        arr[i] := arrTmp[i]
+    ENDFOR
+ENDFUNC
+
+
+FUNC main()
+    VAR n
+    CALL print("n = ")
+    n := geti()               ; 输入数组中的元素个数
+    FOR i := 1 TO n DO        ; 循环输入数组中的每个元素的值
+        CALL print("arr[")
+        CALL printInt(i)
+        CALL print("] = ")
+        arr[i] := geti()
+    ENDFOR
+    CALL mergeSort(1, n)      ; 进行归并排序
+    FOR i := 1 TO n DO        ; 输出排序后的序列
+        CALL printInt(arr[i])
+        CALL print(" ")
+    ENDFOR
+ENDFUNC
